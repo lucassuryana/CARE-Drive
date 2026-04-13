@@ -157,10 +157,14 @@ If you use this code or framework in your research, please cite:
 
 ```bibtex
 @article{suryana2026caredrive,
-  title={CARE-Drive: A Framework for Evaluating Reason-Responsiveness of Vision–Language Models in Automated Driving},
-  author={Suryana, Lucas Elbert and Bierenga, Farah and van Buuren, Sanne and Kooij, Pepijn and Tulleners, Elsefien and Scari, Federico and Calvert, Simeon and van Arem, Bart and Zgonnikov, Arkady},
-  journal={Transportation Research Part C: Emerging Technologies},
-  year={2026}
+  title={CARE-Drive: A Framework for Evaluating Reason-Responsiveness 
+         of Vision–Language Models in Automated Driving},
+  author={Suryana, Lucas Elbert and Bierenga, Farah and van Buuren, Sanne 
+          and Kooij, Pepijn and Tulleners, Elsefien and Scari, Federico 
+          and Calvert, Simeon and van Arem, Bart and Zgonnikov, Arkady},
+  journal={arXiv preprint arXiv:2602.15645},
+  year={2025},
+  note={Under review at Transportation Research Part C: Emerging Technologies}
 }
 ```
 
