@@ -1,12 +1,12 @@
 # CARE-Drive
 
-**CARE-Drive** (Context-Aware Reasons Evaluation for Driving) is the official implementation for the paper:
-
-> **CARE-Drive: A Framework for Evaluating Reason-Responsiveness of Vision–Language Models in Automated Driving**  
-> Lucas Elbert Suryana, Farah Bierenga, Sanne van Buuren, Pepijn Kooij, Elsefien Tulleners, Federico Scari, Simeon Calvert, Bart van Arem, Arkady Zgonnikov  
-> *Transportation Research Part C: Emerging Technologies*  
+> **CARE-Drive: A Framework for Evaluating Reason-Responsiveness of 
+> Vision–Language Models in Automated Driving**  
+> Lucas Elbert Suryana, Farah Bierenga, Sanne van Buuren, Pepijn Kooij, 
+> Elsefien Tulleners, Federico Scari, Simeon Calvert, Bart van Arem, Arkady Zgonnikov  
+> *Under review — Transportation Research Part C: Emerging Technologies*  
+> Preprint available on arXiv: [2602.15645](https://arxiv.org/pdf/2602.15645)  
 > Delft University of Technology
-
 ---
 
 ## Overview
