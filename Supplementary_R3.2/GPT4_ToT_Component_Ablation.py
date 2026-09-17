@@ -1,43 +1,38 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May 19 09:22:08 2025
-
-@author: Pepko
+GPT-4.1 (OpenAI API) variant of the Tree-of-Thought prompt-component ablation.
+Same experimental design as Qwen_ToT_Component_Ablation.py, swapped to call
+the OpenAI API instead of a locally-loaded Qwen3-VL model.
 """
 
-# Belangrijke dingen om te importeren
+import base64
 import os
 import socket
 import sys
 import time
-from openpyxl import Workbook, load_workbook
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
 import re
+from openpyxl import Workbook, load_workbook
+from openai import OpenAI
 
-# Detect which machine we're running on
 hostname = socket.gethostname()
-MODEL_PATH = "Qwen/Qwen3-VL-8B-Instruct"
 
+# --- API key: env var takes priority; otherwise read from a local, gitignored
+# file so you can just paste your key in and never risk committing it. ---
+API_KEY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openai_api_key.txt")
+api_key = os.environ.get("OPENAI_API_KEY")
+if not api_key and os.path.exists(API_KEY_FILE):
+    api_key = open(API_KEY_FILE).read().strip()
+if not api_key or api_key.startswith("REPLACE_ME"):
+    raise RuntimeError(
+        f"No OpenAI API key found. Paste your key into {API_KEY_FILE} "
+        "(replacing the placeholder line) or set the OPENAI_API_KEY environment variable."
+    )
 
-
-# Use the staff-umbrella cache whenever it's reachable (true on both DAIC login
-# and compute nodes), regardless of what the compute node's hostname happens to be.
-DAIC_HF_HOME = "/tudelft.net/staff-umbrella/lsuryana/huggingface"
-if os.path.isdir("/tudelft.net/staff-umbrella/lsuryana"):
-    os.environ["HF_HOME"] = DAIC_HF_HOME
-else:
-    os.environ["HF_HOME"] = os.path.expanduser("~/.cache/huggingface")
+MODEL_NAME = os.environ.get("OPENAI_MODEL", "gpt-4.1")
+client = OpenAI(api_key=api_key, max_retries=5)
 
 print(f"Running on: {hostname}")
-print(f"HF_HOME:    {os.environ['HF_HOME']}")
-print(f"MODEL_PATH: {MODEL_PATH}")
-
-processor = AutoProcessor.from_pretrained(MODEL_PATH)
-model = Qwen3VLForConditionalGeneration.from_pretrained(
-    MODEL_PATH,
-    dtype="auto",
-    device_map="auto"
-)
+print(f"MODEL_NAME: {MODEL_NAME}")
 
 # Parameters
 total_start_time = time.time()
@@ -56,8 +51,7 @@ passenger_hurry = ["",
 runs_per_combination = int(os.environ.get("RUNS_PER_COMBINATION", 10))
 
 # Optional local override: stop after N total runs regardless of RESUME_FROM_RUN,
-# e.g. MAX_RUNS=5 for a quick local smoke test. Leaving this unset (as on DAIC)
-# runs to completion as before.
+# e.g. MAX_RUNS=5 for a quick smoke test.
 MAX_RUNS = os.environ.get("MAX_RUNS")
 MAX_RUNS = int(MAX_RUNS) if MAX_RUNS else None
 
@@ -91,8 +85,7 @@ prompt_conditions = {
 }
 
 # Optional local override: restrict to a single condition, e.g.
-#   ONLY_CONDITION=A_000_baseline python Supplementary_R3.2/Qwen_ToT_Component_Ablation.py
-# Leaving this unset (as on DAIC) runs all conditions as before.
+#   ONLY_CONDITION=A_000_baseline python Supplementary_R3.2/GPT4_ToT_Component_Ablation.py
 ONLY_CONDITION = os.environ.get("ONLY_CONDITION")
 if ONLY_CONDITION:
     if ONLY_CONDITION not in prompt_conditions:
@@ -106,31 +99,17 @@ print(f"Total runs to execute: {total_runs}")
 # RESUME FUNCTIONALITY: Set the run number to continue from
 RESUME_FROM_RUN = 1  # Change this to the run number you want to continue from
 
-# Dictionary to store results
-results = {
-    "Run_Number": [],
-    "Following_Time": [],
-    "TTC": [],
-    "Text_Version": [],
-    "Traffic_Behind": [],
-    "Passenger_Hurry": [],
-    "Condition": [],
-    "Responses": [],
-    "Decisions": [],
-    "Elapsed_Time": []
-}
-
-# Setup Excel file path
+# Setup Excel file path (kept separate from the Qwen results file)
 parent_directory = "Result Table 3 New"
 os.makedirs(parent_directory, exist_ok=True)
-file_path = os.path.join(parent_directory, "Results_Parameter_Combinations.xlsx")
+file_path = os.path.join(parent_directory, "Results_Parameter_Combinations_GPT4.xlsx")
 
 # Check if Excel file exists, if not create it
 if not os.path.exists(file_path):
     wb = Workbook()
     wb.remove(wb.active)  # remove default starting sheet
     ws = wb.create_sheet(title="LLM Parameter Combinations")
-    headers = ["Run_Number", "Following_Time", "TTC", "Text_Version", "Traffic_Behind", "Passenger_Hurry", "Condition", "Response", "Decision", "Elapsed_Time"]
+    headers = ["Run_Number", "Following_Time", "TTC", "Text_Version", "Traffic_Behind", "Passenger_Hurry", "Condition", "Model", "Response", "Decision", "Elapsed_Time"]
     ws.append(headers)
     wb.save(file_path)
     print(f"Excel file created at: {file_path}")
@@ -144,9 +123,22 @@ batch_data = []
 # Counter for run number - START FROM RESUME POINT
 run_counter = RESUME_FROM_RUN - 1  # Will be incremented before first use
 
-# Path to your images
+# Path to your images -- encode once up front and reuse across all requests
 image_path = "Images/scenario 2.jpg"
 image_path_2 = "Images/TTCOncoming.png"
+
+
+def encode_image_to_data_url(path):
+    ext = os.path.splitext(path)[1].lstrip(".").lower()
+    mime = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
+    with open(path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode("utf-8")
+    return f"data:{mime};base64,{b64}"
+
+
+image_data_url = encode_image_to_data_url(image_path)
+image_data_url_2 = encode_image_to_data_url(image_path_2)
+
 
 # Function to calculate which combination we're in based on run number
 def get_combination_from_run_number(run_num):
@@ -155,10 +147,7 @@ def get_combination_from_run_number(run_num):
 
     condition_names = list(prompt_conditions.keys())
 
-    # Calculate which combination this run belongs to
-    total_combinations = len(following_times) * len(ttc_values) * len(text_versions) * len(traffic_behind) * len(passenger_hurry) * len(condition_names)
-
-    # Find which run within the combination (0-28)
+    # Find which run within the combination
     run_in_combination = run_index % runs_per_combination
 
     # Find which combination (0-based)
@@ -200,7 +189,7 @@ if RESUME_FROM_RUN <= total_runs:
     print(f"Starting at run {start_run_in_combination + 1} of {runs_per_combination} for this combination")
 else:
     print("Resume run number is beyond total runs. Nothing to do.")
-    exit()
+    sys.exit()
 
 # Iterate over all combinations, but skip those before the resume point
 combination_counter = 0
@@ -220,16 +209,13 @@ for following_time in following_times:
 
                         # Determine starting run for this combination
                         if combination_counter == ((RESUME_FROM_RUN - 1) // runs_per_combination) + 1:
-                            # This is the combination we're resuming in
                             start_run = start_run_in_combination
                         else:
-                            # This is a new combination, start from the beginning
                             start_run = 0
 
                         for run_in_combination in range(start_run, runs_per_combination):
                             run_counter += 1
 
-                            # Start timing
                             start_time = time.time()
 
                             is_full_reasoning = "FEW SENTENCES" not in text_version
@@ -344,8 +330,8 @@ for following_time in following_times:
                                                                                    {safety_line}\
                                                                                 - Traffic behind: {traffic_behind_value}.\
                                                                                  {'- Automated vehicle passenger is in hurry.' if passenger_hurry_value else ''}"},
-                                                {"type": "image", "image": image_path},
-                                                {"type": "image", "image": image_path_2},
+                                                {"type": "image_url", "image_url": {"url": image_data_url}},
+                                                {"type": "image_url", "image_url": {"url": image_data_url_2}},
                                                 {"type": "text", "text": f"*=== TASK ===* \
                                                             Use a **Tree of Thought** reasoning structure. Explore possible branches (stay behind, overtake), {basis_clause}.\
                                                             For each option: \
@@ -359,31 +345,15 @@ for following_time in following_times:
                                         }
                                     ]
 
-                                inputs = processor.apply_chat_template(
-                                    messages,
-                                    tokenize=True,
-                                    add_generation_prompt=True,
-                                    return_dict=True,
-                                    return_tensors="pt"
-                                ).to(model.device)
                                 max_new_tokens = 2048 if is_full_reasoning else 512
-                                generated_ids = model.generate(
-                                    **inputs,
-                                    max_new_tokens=max_new_tokens,
-                                    do_sample=True,
+                                completion = client.chat.completions.create(
+                                    model=MODEL_NAME,
+                                    messages=messages,
+                                    max_tokens=max_new_tokens,
                                     temperature=0.1,
                                     top_p=0.9,
-                                    repetition_penalty=1.05
                                 )
-                                generated_ids_trimmed = [
-                                    output_ids[len(input_ids):]
-                                    for input_ids, output_ids in zip(inputs.input_ids, generated_ids)
-                                ]
-                                response_text = processor.batch_decode(
-                                    generated_ids_trimmed,
-                                    skip_special_tokens=True,
-                                    clean_up_tokenization_spaces=False
-                                )[0].strip()
+                                response_text = completion.choices[0].message.content.strip()
 
                                 end_time = time.time()
                                 duration = end_time - start_time
@@ -405,18 +375,6 @@ for following_time in following_times:
                                 decision = "Error"
                                 duration = 0
 
-                            # Store results
-                            results["Run_Number"].append(run_counter)
-                            results["Following_Time"].append(following_time)
-                            results["TTC"].append(ttc_value)
-                            results["Text_Version"].append("Limited" if "FEW SENTENCES" in text_version else "Unlimited")
-                            results["Traffic_Behind"].append(traffic_behind_value)
-                            results["Passenger_Hurry"].append(passenger_hurry_value)
-                            results["Condition"].append(condition_name)
-                            results["Responses"].append(response_text)
-                            results["Decisions"].append(decision)
-                            results["Elapsed_Time"].append(round(duration, 2))
-
                             # Add to batch data
                             batch_data.append([
                                 run_counter,
@@ -426,6 +384,7 @@ for following_time in following_times:
                                 traffic_behind_value,
                                 passenger_hurry_value,
                                 condition_name,
+                                MODEL_NAME,
                                 response_text,
                                 decision,
                                 round(duration, 2)
@@ -434,30 +393,18 @@ for following_time in following_times:
                             # Save to Excel every 120 runs or at the end
                             if len(batch_data) >= batch_size or run_counter == total_runs:
                                 try:
-                                    # Load existing workbook
                                     wb = load_workbook(file_path)
                                     ws = wb["LLM Parameter Combinations"]
-
-                                    # Add all rows in the batch
                                     for row in batch_data:
                                         ws.append(row)
-
-                                    # Save the file
                                     wb.save(file_path)
-
                                     print(f"Batch saved: {len(batch_data)} rows written to Excel (Run {run_counter})")
-
-                                    # Clear batch data
                                     batch_data = []
-
                                 except Exception as e:
                                     print(f"Error saving batch to Excel at run {run_counter}: {e}")
 
                             # Progress update
-                            if run_counter % 10 == 0:
-                                print(f"[{run_counter}/{total_runs}] Completed - Time: {duration:.2f} sec")
-                            elif run_counter % 1 == 0:
-                                print(f"[{run_counter}/{total_runs}] Completed - Time: {duration:.2f} sec")
+                            print(f"[{run_counter}/{total_runs}] Completed - Time: {duration:.2f} sec")
 
                             if MAX_RUNS is not None and run_counter >= MAX_RUNS:
                                 if batch_data:

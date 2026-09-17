@@ -74,10 +74,12 @@ results = {
 
 # Setup Excel file path -- write next to this script (Table 7/), not into
 # the ablation study's shared "Result Table 3 New" folder, which already
-# holds a differently-shaped 1200-row file under the same filename.
+# holds a differently-shaped 1200-row file under the same filename. Named
+# distinctly from the ToT script's output so the two reasoning-strategy
+# variants don't collide in the same file.
 parent_directory = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(parent_directory, exist_ok=True)
-file_path = os.path.join(parent_directory, "Results_Parameter_Combinations.xlsx")
+file_path = os.path.join(parent_directory, "Results_Parameter_Combinations_CoT.xlsx")
 
 # Check if Excel file exists, if not create it
 if not os.path.exists(file_path):
@@ -196,20 +198,15 @@ for following_time in following_times:
                             format_instruction = """
                         You MUST format your response as follows:
 
-                        Tree of Thought Reasoning
+                        Step-by-Step Reasoning
 
-                        Branch 1: Stay Behind the Cyclist
-                        - Reason 1 (Safety): ...
-                        - Reason 2 (Human behavior): ...
+                        1. [Consideration of Reason 1 (Safety)]
+                        2. [Consideration of Reason 2 (Human behaviour)]
+                        3. ...
                         ...
 
-                        Branch 2: Overtake the Cyclist
-                        - Reason 1 (Safety): ...
-                        - Reason 2 (Human behavior): ...
-                        ...
-
-                        Weighing the Branches:
-                        [Compare the branches and justify which is better.]
+                        Final Weighing:
+                        [Summarize the overall trade-offs and how the reasons support one action over the other.]
 
                         Final Decision:
                         Decision: case 1 or Decision: case 2
@@ -276,10 +273,11 @@ for following_time in following_times:
                                             {"type": "input_image", 
                                                 "image_url": f"data:image/jpeg;base64,{base64_image_2}"},
                                             {"type": "input_text", "text": f"*=== TASK ===* \
-                                                        Use a **Tree of Thought** reasoning structure. Explore possible branches (stay behind, overtake), based on the REASONS and KEY PRINCIPLE in the INSTRUCTION.\
-                                                        For each option: \
-                                                        - Consider safety and physical crash risk first \
-                                                        - Weigh benefits and drawbacks based on the remaining REASONS \
+                                                        Use a **Chain of Thought** reasoning structure. Think step-by-step of what the AV should do based on the REASONS and KEY PRINCIPLE in the INSTRUCTION.\
+                                                        For each step: \
+                                                        - Consider the drawbacks and benefits according to the list of REASONS in the INSTRUCTION \
+                                                        - Evaluate implications of Case 1 (staying behind) by following the Key Principle \
+                                                        - Evaluate implications of Case 2 (overtaking) by following the Key Principle \
                                                         - Consider implications of TTC, following time, traffic behind, and passenger status (if available) \
                                                         {format_instruction}\
                                                         You MUST decide what the AV should do and end your answer with: Decision: case 1 or Decision: case 2, case 1 is staying behind the cyclist and case 2 is overtaking the cyclist \

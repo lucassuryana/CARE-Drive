@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=qwen_tot_ablation
 #SBATCH --partition=general
-#SBATCH --qos=infinite
+#SBATCH --qos=normal
 #SBATCH --time=10-00:00:00
 #SBATCH --gres=gpu:l40:1
 #SBATCH --cpus-per-task=8
@@ -13,10 +13,22 @@
 #   cd ~/CARE-Drive && git checkout address-reviewer-comment && git pull
 #   sbatch Supplementary_R3.2/qwen_tot_ablation.sbatch
 #
-# Estimated runtime: ~6.5 days serial (18,000 runs; measured ~35.6s/run avg
-# from a 120-run sample: ~50-67s for full-reasoning calls, ~7-9s for
-# few-sentence calls). --time is set with buffer above that estimate; --qos
-# infinite has no cap of its own, so this is a safety ceiling, not a target.
+# Estimated runtime: ~6.4 hours serial (400 runs -- following time fixed at
+# 24s, single (full-reasoning) text version, 2-level factorial over
+# TTC/traffic behind/passenger hurry x 5 conditions x 10 runs/combination;
+# every call is now full-reasoning, measured ~50-67s/run per a 120-run
+# sample). Run twice (or more) at 10 runs/combination and both batches land
+# in the same Excel file -- pool them by grouping on the parameter columns
+# (Run_Number restarts at 1 each time, so don't key off it). --time is set
+# with buffer above the single-batch estimate.
+#
+# QoS: normal has no MaxWall cap (per `sacctmgr show qos`) and is presumably
+# the cluster's default/standard-priority tier, so it should schedule at
+# least as well as infinite while still allowing the long runtime. If it
+# stalls in the queue, fall back to --qos=long (7-day cap, known-working on
+# this account per render_scenes.sbatch/extract_blobs.sbatch) -- the script
+# saves to Excel every 120 rows and supports RESUME_FROM_RUN, so a kill at
+# the wall only costs the unfinished tail, resubmittable.
 #
 # GPU choice: l40 (Ada Lovelace) picked over a40/v100 for inference speed;
 # swap the --gres line to gpu:a40:1 or gpu:v100:1 if l40 is unavailable/busy.

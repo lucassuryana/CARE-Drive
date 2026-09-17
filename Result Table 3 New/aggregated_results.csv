@@ -1,0 +1,5 @@
+Following_Time,TTC,Text_Version,Traffic_Behind,Passenger_Hurry,Decision
+24,1.7,LLM: No-limit,Yes,No,0.0
+24,1.7,LLM: No-limit,Yes,Yes,0.0
+24,8.5,LLM: No-limit,Yes,No,14.666666666666666
+24,8.5,LLM: No-limit,Yes,Yes,12.666666666666668

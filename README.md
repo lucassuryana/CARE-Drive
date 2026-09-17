@@ -41,7 +41,7 @@ The file names encode the combination of prompting techniques used in each exper
 |---|---|
 | **Baseline** | Minimal prompt with no additional structure or reasoning guidance |
 | **Role** | The LLM is assigned a specific role as a decision-making component within an AV system |
-| **HR** | Human Reasons — the LLM is provided 13 expert-derived normative reasons to consider (e.g., safety, legality, efficiency, fairness, comfort), with safety assigned the highest priority |
+| **HR** | Human Reasons — the LLM is provided 11 expert-derived normative reasons to consider (e.g., safety, legality, efficiency, fairness, comfort), with safety assigned the highest priority |
 | **CoT** | Chain of Thought — the LLM is prompted to reason step by step before reaching a decision |
 | **ToT** | Tree of Thought — the LLM is prompted to explore multiple reasoning branches (overtake vs. stay behind) before converging on a decision |
 
