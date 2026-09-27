@@ -81,13 +81,11 @@ CARE-Drive/
 │   │   ├── Results_Parameter_Combinations.xlsx
 │   │   └── overtaking_rate_figure_rev.ipynb   # Draws Fig. 6 (two-panel)
 │   │
-│   └── figure_A8/                         # Held-out speed-offset evaluation (Sec. 3.4.7, App. A)
+│   └── figure_A8/                         # Held-out speed-offset evaluation (Sec. 3.4.7, App. A) --
+│       │                                   # GPT-4.1 only, matching both Fig. A.8 and Table A.12
 │       ├── GPT4_ToT_SpeedCompliance_Ablation.py
 │       ├── GPT4_ToT_Baseline_vs_CAREDrive.xlsx
-│       ├── GPT4_speed_offset_figure.ipynb      # Draws Fig. A.8
-│       ├── Qwen_ToT_SpeedCompliance_Ablation.py    # Exploratory Qwen counterpart, not in the paper
-│       ├── Qwen_ToT_Baseline_vs_CAREDrive.xlsx
-│       └── QWEN_speed_offset_figure.ipynb
+│       └── GPT4_speed_offset_figure.ipynb      # Draws Fig. A.8
 │
 ├── tables/
 │   │
@@ -114,6 +112,13 @@ CARE-Drive/
 │       ├── overtaking_rate_figure_qwen.ipynb    # Qwen-only two-panel view (not itself in the paper)
 │       └── overtaking_two_panel_qwen.png/.pdf/.svg
 │
+├── extras/                                 # Work beyond the paper's actual figures/tables
+│   └── qwen_speed_offset/                  # Qwen counterpart to the speed-offset eval -- no such
+│       │                                   # comparison exists in the paper's Appendix A
+│       ├── Qwen_ToT_SpeedCompliance_Ablation.py
+│       ├── Qwen_ToT_Baseline_vs_CAREDrive.xlsx
+│       └── QWEN_speed_offset_figure.ipynb
+│
 ├── Supplementary_R3.2/
 │   └── openai_api_key.txt                 # Shared, gitignored OpenAI key used by every GPT-4.1 script
 │
@@ -124,8 +129,9 @@ Neither Table 9 nor Table A.12 has a script that assembles the actual table layo
 numbers are a direct, un-transformed read of the underlying `.xlsx` files. For Table 9 that means
 `figures/figure_06/Results_Parameter_Combinations.xlsx` (GPT-4.1) and
 `tables/table_09/Results_Parameter_Combinations_Qwen.xlsx` (Qwen) side by side; for Table A.12,
-`figures/figure_A8/*_Baseline_vs_CAREDrive.xlsx`. Each relevant notebook computes the same grouped
-summary internally, right before plotting it.
+`figures/figure_A8/GPT4_ToT_Baseline_vs_CAREDrive.xlsx` alone (Table A.12 has no Qwen column in the
+paper -- see the note on `extras/` below). Each relevant notebook computes the same grouped summary
+internally, right before plotting it.
 
 ---
 
@@ -182,9 +188,16 @@ python "figures/figure_06/GPT4_ToT_Component_Ablation.py"
 python "tables/table_09/Qwen_ToT_Component_Ablation.py"   # run locally
 ```
 
-**Figure A.8 (held-out speed-offset evaluation, Sec. 3.4.7, Appendix A):**
+**Figure A.8 / Table A.12 (held-out speed-offset evaluation, Sec. 3.4.7, Appendix A):**
 ```bash
 python "figures/figure_A8/GPT4_ToT_SpeedCompliance_Ablation.py"
+```
+
+**Extras -- Qwen speed-offset (not in the paper):** the Appendix A speed-offset evaluation has no
+Qwen counterpart in the paper (unlike Table 9, which does); this is exploratory work done alongside
+it, kept in its own `extras/` tree so it isn't mistaken for part of Table A.12.
+```bash
+python "extras/qwen_speed_offset/Qwen_ToT_SpeedCompliance_Ablation.py"   # run locally
 ```
 
 **Tables 6-8 (Section 4.2 statistical analysis):**
