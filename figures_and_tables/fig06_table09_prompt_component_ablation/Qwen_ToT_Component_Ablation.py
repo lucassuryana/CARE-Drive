@@ -91,7 +91,7 @@ prompt_conditions = {
 }
 
 # Optional local override: restrict to a single condition, e.g.
-#   ONLY_CONDITION=A_000_baseline python Supplementary_R3.2/Qwen_ToT_Component_Ablation.py
+#   ONLY_CONDITION=A_000_baseline python "figures_and_tables/fig06_table09_prompt_component_ablation/Qwen_ToT_Component_Ablation.py"
 # Leaving this unset (as on DAIC) runs all conditions as before.
 ONLY_CONDITION = os.environ.get("ONLY_CONDITION")
 if ONLY_CONDITION:
@@ -121,7 +121,7 @@ results = {
 }
 
 # Setup Excel file path
-parent_directory = "Result Table 3 New"
+parent_directory = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "Results_Parameter_Combinations.xlsx")
 

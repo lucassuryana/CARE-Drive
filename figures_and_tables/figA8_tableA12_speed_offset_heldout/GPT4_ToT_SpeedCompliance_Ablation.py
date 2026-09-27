@@ -33,7 +33,9 @@ hostname = socket.gethostname()
 
 # --- API key: env var takes priority; otherwise read from a local, gitignored
 # file so you can just paste your key in and never risk committing it. ---
-API_KEY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openai_api_key.txt")
+API_KEY_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "Supplementary_R3.2", "openai_api_key.txt"
+)
 api_key = os.environ.get("OPENAI_API_KEY")
 if not api_key and os.path.exists(API_KEY_FILE):
     api_key = open(API_KEY_FILE).read().strip()
@@ -110,7 +112,7 @@ prompt_conditions = {
 }
 
 # Optional local override: restrict to a single condition, e.g.
-#   ONLY_CONDITION=A_baseline python Supplementary_R3.2/GPT4_ToT_SpeedCompliance_Ablation.py
+#   ONLY_CONDITION=A_baseline python "figures_and_tables/figA8_tableA12_speed_offset_heldout/GPT4_ToT_SpeedCompliance_Ablation.py"
 ONLY_CONDITION = os.environ.get("ONLY_CONDITION")
 if ONLY_CONDITION:
     if ONLY_CONDITION not in prompt_conditions:
@@ -126,7 +128,7 @@ RESUME_FROM_RUN = 1  # Change this to the run number you want to continue from
 
 # Setup Excel file path -- named distinctly from the overtaking ablation so
 # the two studies can't be confused.
-parent_directory = "Result Speed Offset Held-Out Evaluation"
+parent_directory = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "GPT4_ToT_Baseline_vs_CAREDrive.xlsx")
 

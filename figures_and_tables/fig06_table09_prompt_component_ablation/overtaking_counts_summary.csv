@@ -1,0 +1,21 @@
+Condition,Series,TTC_1.7,TTC_8.5
+A_000_baseline,"No traffic behind, in hurry",0.0,0.0
+A_000_baseline,"No traffic behind, no hurry",0.0,0.0
+A_000_baseline,"Traffic behind, in hurry",0.0,0.0
+A_000_baseline,"Traffic behind, no hurry",0.0,0.0
+B_001_safety_only,"No traffic behind, in hurry",0.0,0.0
+B_001_safety_only,"No traffic behind, no hurry",0.0,0.0
+B_001_safety_only,"Traffic behind, in hurry",0.0,0.0
+B_001_safety_only,"Traffic behind, no hurry",0.0,0.0
+C_100_reasons_only,"No traffic behind, in hurry",0.0,0.0
+C_100_reasons_only,"No traffic behind, no hurry",0.0,0.0
+C_100_reasons_only,"Traffic behind, in hurry",0.0,0.0
+C_100_reasons_only,"Traffic behind, no hurry",0.0,0.0
+D_110_reasons_principles,"No traffic behind, in hurry",0.0,0.0
+D_110_reasons_principles,"No traffic behind, no hurry",0.0,0.0
+D_110_reasons_principles,"Traffic behind, in hurry",0.0,0.0
+D_110_reasons_principles,"Traffic behind, no hurry",0.0,0.0
+E_111_full_prompt,"No traffic behind, in hurry",0.0,24.0
+E_111_full_prompt,"No traffic behind, no hurry",0.0,25.0
+E_111_full_prompt,"Traffic behind, in hurry",0.0,19.0
+E_111_full_prompt,"Traffic behind, no hurry",0.0,22.0

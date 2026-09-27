@@ -115,7 +115,7 @@ prompt_conditions = {
 }
 
 # Optional local override: restrict to a single condition, e.g.
-#   ONLY_CONDITION=A_baseline python Supplementary_R3.2/Qwen_ToT_SpeedCompliance_Ablation.py
+#   ONLY_CONDITION=A_baseline python "figures_and_tables/figA8_tableA12_speed_offset_heldout/Qwen_ToT_SpeedCompliance_Ablation.py"
 ONLY_CONDITION = os.environ.get("ONLY_CONDITION")
 if ONLY_CONDITION:
     if ONLY_CONDITION not in prompt_conditions:
@@ -132,7 +132,7 @@ RESUME_FROM_RUN = 1  # Change this to the run number you want to continue from
 # Setup Excel file path -- named distinctly from the GPT-4.1 run of the same
 # scenario so the two models' results can't be confused, but written to the
 # same folder so they're easy to compare side by side.
-parent_directory = "Result Speed Offset Held-Out Evaluation"
+parent_directory = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "Qwen_ToT_Baseline_vs_CAREDrive.xlsx")
 
