@@ -71,7 +71,7 @@ other_vehicle_speeds = [70, 90]  # km/h, surrounding traffic speed (moderate / s
 text_versions = [
     "ONLY PRINT the FINAL ACTION and YOUR JUSTIFICATION"
 ]
-runs_per_combination = int(os.environ.get("RUNS_PER_COMBINATION", 5))
+runs_per_combination = int(os.environ.get("RUNS_PER_COMBINATION", 20))
 
 # Expected direction of the AV's action per (rear_time_headway, other_speed)
 # context, used to score directional agreement against the model's ACTION.

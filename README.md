@@ -68,11 +68,29 @@ CARE-Drive/
 │   ├── ROLE + CoT + HR.py
 │   └── ROLE + ToT + HR.py
 │
-├── Table 7/                               # Stage 2 contextual evaluation
-│   ├── ROLE + ToT + HR One Run.py         # Full-factorial contextual sensitivity experiments
+├── Table 7/                               # Stage 2 contextual evaluation (Fig. 5, Tables 6-8)
+│   ├── ROLE + ToT + HR One Run.py         # Primary ToT full-factorial run (3,600 obs)
 │   ├── Results_Parameter_Combinations.xlsx
-│   ├── logit.ipynb                        # Binary logistic regression analysis
-│   └── overtaking_rate_calculation.ipynb  # Overtaking rate computation and visualization
+│   ├── ROLE + CoT + HR One Run.py         # CoT sensitivity check (Sec. 3.4.4, Table 8; 3,600 obs)
+│   ├── Results_Parameter_Combinations_CoT.xlsx
+│   ├── overtaking_rate_calculation.ipynb  # ToT overtaking-rate computation and visualization
+│   ├── overtaking_rate_calculation_CoT.ipynb  # CoT counterpart of the above
+│   └── logit.ipynb                        # Early prototype only -- see note under Statistical analysis
+│
+├── Supplementary_R3.2/                    # Prompt-component ablation (Table 3, Fig. 6, Table 9)
+│   ├── GPT4_ToT_Component_Ablation.py     # GPT-4.1, conditions A-E (1,200 obs)
+│   ├── Qwen_ToT_Component_Ablation.py     # Qwen3-VL-8B-Instruct cross-model check (400 obs)
+│   ├── GPT4_ToT_SpeedCompliance_Ablation.py   # Held-out speed-offset eval (Sec. 3.4.7, App. A)
+│   ├── Qwen_ToT_SpeedCompliance_Ablation.py   # Same eval on Qwen -- exploratory, not in the paper
+│   └── qwen_tot_ablation.sbatch           # DAIC cluster job for the Qwen ablation
+│
+├── Result Table 3 New/                    # Ablation results and plotting notebooks (GPT-4.1 + Qwen)
+│   ├── Results_Parameter_Combinations.xlsx        # GPT-4.1, matches Table 9's GPT-4.1 column
+│   └── Results_Parameter_Combinations_Qwen.xlsx   # Qwen3-VL-8B, matches Table 9's Qwen column
+│
+├── Result Speed Offset Held-Out Evaluation/
+│   ├── GPT4_ToT_Baseline_vs_CAREDrive.xlsx        # Matches Table A.12 / Fig. A.8 exactly
+│   └── Qwen_ToT_Baseline_vs_CAREDrive.xlsx        # Exploratory Qwen counterpart, not in the paper
 │
 └── final_results_table_3_4_5_6.xlsx       # Aggregated results from Stage 1
 ```
@@ -109,16 +127,33 @@ python "Table 3/BB + Role + CoT + HR.py"
 python "Table 3/BB + Role + ToT + HR.py"
 ```
 
-**Stage 2 — Contextual Evaluation (Table 7):**
+**Stage 2 — Contextual Evaluation (Table 7, Fig. 5):**
 ```bash
-python "Table 7/ROLE + ToT + HR One Run.py"
+python "Table 7/ROLE + ToT + HR One Run.py"        # primary configuration (Tables 6-7)
+python "Table 7/ROLE + CoT + HR One Run.py"        # reasoning-strategy sensitivity check (Table 8)
+```
+
+**Prompt-component ablation (Table 3, Fig. 6, Table 9):**
+```bash
+python Supplementary_R3.2/GPT4_ToT_Component_Ablation.py
+python Supplementary_R3.2/Qwen_ToT_Component_Ablation.py     # cross-model check, run locally
+```
+
+**Held-out speed-offset evaluation (Sec. 3.4.7, Appendix A):**
+```bash
+python Supplementary_R3.2/GPT4_ToT_SpeedCompliance_Ablation.py
 ```
 
 **Statistical analysis:**
 
-Open `Table 7/logit.ipynb` in Jupyter Notebook to run the binary logistic regression and reproduce the odds ratio and probability results.
+`Table 7/logit.ipynb` is an early prototype (individual-level/mixed-effects logistic regression on raw
+decisions) and does **not** implement the grouped-binomial regression, AIC/deviance model comparison
+(Table 6), bootstrap odds-ratio confidence intervals (Tables 7-8), or Wilson confidence intervals (Fig. 5)
+reported in the paper. That analysis code is not currently in this repository and would need to be written
+separately to fully reproduce Section 4.2's statistical results.
 
-Each script runs 30 independent stochastic trials per experimental condition and saves results incrementally to an Excel file.
+Each script runs 30 independent stochastic trials per experimental condition (10 for the Qwen cross-model
+check, 20 for the speed-offset evaluation) and saves results incrementally to an Excel file.
 
 ---
 
