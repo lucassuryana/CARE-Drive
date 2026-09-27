@@ -49,52 +49,78 @@ The file names encode the combination of prompting techniques used in each exper
 
 ## Project Structure
 
+Everything produced by code lives under `figures/` or `tables/` -- one folder per figure, one
+folder per table (or set of tables produced by a single script). A figure folder holds only what's
+needed to draw that figure: the data-generating script, the resulting `.xlsx`, and the plotting
+notebook. Where a table is computed from data that a figure folder already owns, the table's
+folder holds just the analysis code and reads that data from its figure folder rather than keeping
+a second copy.
+
 ```
 CARE-Drive/
 │
-├── Images/
+├── Images/                                # Input photos/diagrams fed to the VLM (not code output)
 │   ├── scenario 1.jpg                     # Dashboard view: baseline and vehicle-behind scenarios
 │   ├── scenario 2.jpg                     # Dashboard view: oncoming vehicle scenario
+│   ├── scenario_addition.png              # Held-out speed-offset scenario view
 │   ├── Distance oncoming vehicle to AV.png
 │   └── TTCOncoming.png                    # Time-to-collision diagram for overtaking maneuver
 │
-├── Table 3/                               # Stage 1 calibration: model and thought strategy screening
-│   ├── BB + Role + HR.py                  # Baseline + Role + Human Reasons (No-Thought)
-│   ├── BB + Role + CoT + HR.py            # Baseline + Role + Chain-of-Thought + Human Reasons
-│   └── BB + Role + ToT + HR.py            # Baseline + Role + Tree-of-Thought + Human Reasons
+├── figures/
+│   │
+│   ├── figure_05/                             # Stage 2 full-factorial evaluation
+│   │   ├── ROLE + ToT + HR One Run.py         # Primary ToT run (3,600 obs)
+│   │   ├── Results_Parameter_Combinations.xlsx
+│   │   ├── ROLE + CoT + HR One Run.py         # CoT sensitivity check (Sec. 3.4.4)
+│   │   ├── Results_Parameter_Combinations_CoT.xlsx
+│   │   ├── overtaking_rate_calculation.ipynb      # Draws Fig. 5 (ToT)
+│   │   └── overtaking_rate_calculation_CoT.ipynb  # CoT counterpart
+│   │
+│   ├── figure_06/                             # Prompt-component ablation, cross-model
+│   │   ├── GPT4_ToT_Component_Ablation.py     # GPT-4.1, conditions A-E (1,200 obs)
+│   │   ├── Results_Parameter_Combinations.xlsx
+│   │   ├── Qwen_ToT_Component_Ablation.py     # Qwen3-VL-8B-Instruct cross-model check (400 obs)
+│   │   ├── Results_Parameter_Combinations_Qwen.xlsx
+│   │   ├── qwen_tot_ablation.sbatch            # DAIC cluster job for the Qwen script above
+│   │   ├── overtaking_rate_figure_rev.ipynb    # Draws Fig. 6 (GPT-4.1, two-panel)
+│   │   ├── overtaking_rate_figure_qwen.ipynb   # Qwen counterpart panel (not in the paper)
+│   │   └── overtaking_rate_figure.ipynb        # Earlier alternative layout, superseded by *_rev
+│   │
+│   └── figure_A8/                         # Held-out speed-offset evaluation (Sec. 3.4.7, App. A)
+│       ├── GPT4_ToT_SpeedCompliance_Ablation.py
+│       ├── GPT4_ToT_Baseline_vs_CAREDrive.xlsx
+│       ├── GPT4_speed_offset_figure.ipynb      # Draws Fig. A.8
+│       ├── Qwen_ToT_SpeedCompliance_Ablation.py    # Exploratory Qwen counterpart, not in the paper
+│       ├── Qwen_ToT_Baseline_vs_CAREDrive.xlsx
+│       └── QWEN_speed_offset_figure.ipynb
 │
-├── Table 4, 5, 6/                         # Stage 1 robustness: varied scenarios and explanation length
+├── tables/
+│   │
+│   └── table06-08_stage2_stats/           # Section 4.2 statistics (Tables 6-8)
+│       ├── care_drive_stage2_analysis.py  # Reads figures/figure_05/*.xlsx directly, no data copy
+│       └── logit.ipynb                    # Early prototype, superseded -- see Statistical analysis
+│
+├── Supplementary_R3.2/
+│   └── openai_api_key.txt                 # Shared, gitignored OpenAI key used by every GPT-4.1 script
+│
+├── Table 3/                               # Stage 1 Step 1 screening (paper's Table 4) -- legacy,
+│   │                                       # not touched/verified in the reproducibility pass above
+│   ├── BB + Role + HR.py
+│   ├── BB + Role + CoT + HR.py
+│   └── BB + Role + ToT + HR.py
+│
+├── Table 4, 5, 6/                         # Stage 1 Step 2 sensitivity (paper's Table 5) -- same caveat
 │   ├── ROLE + HR.py
 │   ├── ROLE + CoT + HR.py
 │   └── ROLE + ToT + HR.py
 │
-├── Table 7/                               # Stage 2 contextual evaluation (Fig. 5, Tables 6-8)
-│   ├── ROLE + ToT + HR One Run.py         # Primary ToT full-factorial run (3,600 obs)
-│   ├── Results_Parameter_Combinations.xlsx
-│   ├── ROLE + CoT + HR One Run.py         # CoT sensitivity check (Sec. 3.4.4, Table 8; 3,600 obs)
-│   ├── Results_Parameter_Combinations_CoT.xlsx
-│   ├── overtaking_rate_calculation.ipynb  # ToT overtaking-rate computation and visualization
-│   ├── overtaking_rate_calculation_CoT.ipynb  # CoT counterpart of the above
-│   ├── logit.ipynb                        # Early prototype, superseded -- see Statistical analysis
-│   └── care_drive_stage2_analysis.py      # Section 4.2 statistical analysis (Tables 6-8)
-│
-├── Supplementary_R3.2/                    # Prompt-component ablation (Table 3, Fig. 6, Table 9)
-│   ├── GPT4_ToT_Component_Ablation.py     # GPT-4.1, conditions A-E (1,200 obs)
-│   ├── Qwen_ToT_Component_Ablation.py     # Qwen3-VL-8B-Instruct cross-model check (400 obs)
-│   ├── GPT4_ToT_SpeedCompliance_Ablation.py   # Held-out speed-offset eval (Sec. 3.4.7, App. A)
-│   ├── Qwen_ToT_SpeedCompliance_Ablation.py   # Same eval on Qwen -- exploratory, not in the paper
-│   └── qwen_tot_ablation.sbatch           # DAIC cluster job for the Qwen ablation
-│
-├── Result Table 3 New/                    # Ablation results and plotting notebooks (GPT-4.1 + Qwen)
-│   ├── Results_Parameter_Combinations.xlsx        # GPT-4.1, matches Table 9's GPT-4.1 column
-│   └── Results_Parameter_Combinations_Qwen.xlsx   # Qwen3-VL-8B, matches Table 9's Qwen column
-│
-├── Result Speed Offset Held-Out Evaluation/
-│   ├── GPT4_ToT_Baseline_vs_CAREDrive.xlsx        # Matches Table A.12 / Fig. A.8 exactly
-│   └── Qwen_ToT_Baseline_vs_CAREDrive.xlsx        # Exploratory Qwen counterpart, not in the paper
-│
-└── final_results_table_3_4_5_6.xlsx       # Aggregated results from Stage 1
+└── final_results_table_3_4_5_6.xlsx       # Manually aggregated summary, not produced by a script
 ```
+
+Tables 9 and A.12 don't have a dedicated table-generating script -- the paper's numbers there are a
+direct, un-transformed read of `figures/figure_06/Results_Parameter_Combinations*.xlsx` and
+`figures/figure_A8/*_Baseline_vs_CAREDrive.xlsx` respectively (each figure's own notebook computes
+the same grouped summary internally before plotting it).
 
 ---
 
@@ -122,51 +148,59 @@ To make this permanent, add the line above to your `~/.zshrc` or `~/.bashrc`.
 
 ## Running the Experiments
 
-All scripts are designed to be run from the **project root directory** so that relative image paths resolve correctly.
+All scripts are designed to be run from the **project root directory** so that relative image paths
+resolve correctly, even though the scripts themselves live inside `figures/<name>/` or
+`tables/<name>/`. Each figure script writes its output Excel file next to itself, in the same folder.
 
-**Stage 1 — Prompt Calibration (Tables 3, 4, 5, 6):**
+**Stage 1 — Prompt Calibration (Tables 3, 4, 5, 6, legacy, unverified this pass):**
 ```bash
 python "Table 3/BB + Role + CoT + HR.py"
 python "Table 3/BB + Role + ToT + HR.py"
 ```
 
-**Stage 2 — Contextual Evaluation (Table 7, Fig. 5):**
+**Figure 5 (Stage 2 contextual evaluation):**
 ```bash
-python "Table 7/ROLE + ToT + HR One Run.py"        # primary configuration (Tables 6-7)
-python "Table 7/ROLE + CoT + HR One Run.py"        # reasoning-strategy sensitivity check (Table 8)
+python "figures/figure_05/ROLE + ToT + HR One Run.py"   # primary (3,600 obs)
+python "figures/figure_05/ROLE + CoT + HR One Run.py"   # sensitivity check (3,600 obs)
 ```
 
-**Prompt-component ablation (Table 3, Fig. 6, Table 9):**
+**Figure 6 (prompt-component ablation, cross-model):**
 ```bash
-python Supplementary_R3.2/GPT4_ToT_Component_Ablation.py
-python Supplementary_R3.2/Qwen_ToT_Component_Ablation.py     # cross-model check, run locally
+python "figures/figure_06/GPT4_ToT_Component_Ablation.py"
+python "figures/figure_06/Qwen_ToT_Component_Ablation.py"   # run locally
 ```
 
-**Held-out speed-offset evaluation (Sec. 3.4.7, Appendix A):**
+**Figure A.8 (held-out speed-offset evaluation, Sec. 3.4.7, Appendix A):**
 ```bash
-python Supplementary_R3.2/GPT4_ToT_SpeedCompliance_Ablation.py
+python "figures/figure_A8/GPT4_ToT_SpeedCompliance_Ablation.py"
 ```
 
-**Statistical analysis (Section 4.2, Tables 6-8):**
+**Tables 6-8 (Section 4.2 statistical analysis):**
 
 ```bash
-cd "Table 7"
-python care_drive_stage2_analysis.py
+python "tables/table06-08_stage2_stats/care_drive_stage2_analysis.py"
 ```
 
 Reads `Results_Parameter_Combinations.xlsx` (ToT) and `Results_Parameter_Combinations_CoT.xlsx` (CoT)
-from the current directory. Reproduces, per reasoning strategy: Wilson 95% CIs per condition,
-complete-separation screening (TTC = 1.7 s), the AIC/deviance specification screen (Table 6), the final
-grouped-binomial model with clustered SEs and a dispersion parameter, a 2,000-replicate condition-level
-bootstrap for odds-ratio CIs (Tables 7-8), predicted probabilities at named contextual profiles, and the
-pooled Strategy × Context comparison (Sec. 4.2.3, Sec. 5.1). Verified to reproduce the paper's reported
-AIC values, odds ratios, bootstrap CIs, and Strategy × {Rear-vehicle, Urgency} interaction coefficients
-exactly. Requires `statsmodels` and `scipy` in addition to the base requirements below. Writes CSV
-outputs to `Table 7/stage2_analysis_output/` (regenerable, not tracked in the repo).
+directly from `figures/figure_05/` -- no separate copy of the data is kept next to the table code.
+Reproduces, per reasoning strategy: Wilson 95% CIs per condition, complete-separation screening
+(TTC = 1.7 s), the AIC/deviance specification screen (Table 6), the final grouped-binomial model with
+clustered SEs and a dispersion parameter, a 2,000-replicate condition-level bootstrap for odds-ratio CIs
+(Tables 7-8), predicted probabilities at named contextual profiles, and the pooled Strategy × Context
+comparison (Sec. 4.2.3, Sec. 5.1). Verified to reproduce the paper's reported AIC values, odds ratios,
+bootstrap CIs, and Strategy × {Rear-vehicle, Urgency} interaction coefficients exactly, run either from
+the repo root or from inside its own folder. Requires `statsmodels` and `scipy` in addition to the base
+requirements below. Writes CSV outputs to `tables/table06-08_stage2_stats/stage2_analysis_output/`
+(regenerable, not tracked in the repo).
 
-`Table 7/logit.ipynb` is an earlier, abandoned prototype (individual-level/mixed-effects logistic
-regression on raw decisions) that does not implement this methodology -- kept for history, not needed
-for reproduction.
+`tables/table06-08_stage2_stats/logit.ipynb` is an earlier, abandoned prototype (individual-level/
+mixed-effects logistic regression on raw decisions) that does not implement this methodology -- kept
+for history, not needed for reproduction, and its internal data path was not updated to match (it
+never worked for this purpose to begin with).
+
+Tables 9 and A.12 have no separate script -- open the corresponding figure's notebook in
+`figures/figure_06/` or `figures/figure_A8/` and read the `panel_a`/`panel_b` (or equivalent grouped)
+dataframe it computes just before plotting.
 
 Each script runs 30 independent stochastic trials per experimental condition (10 for the Qwen cross-model
 check, 20 for the speed-offset evaluation) and saves results incrementally to an Excel file.

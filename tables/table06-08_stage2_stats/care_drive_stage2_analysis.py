@@ -39,8 +39,11 @@ FILES = {
     "ToT": "Results_Parameter_Combinations.xlsx",
     "CoT": "Results_Parameter_Combinations_CoT.xlsx",
 }
-INDIR = "."
-OUTDIR = "./stage2_analysis_output"
+# Reads the ToT/CoT Stage-2 workbooks straight from figures/figure_05/, so the
+# raw data has a single home instead of a copy living next to the table code.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+INDIR = os.path.join(_HERE, "..", "..", "figures", "figure_05")
+OUTDIR = os.path.join(_HERE, "stage2_analysis_output")
 
 # TTC = 1.7 s produced no overtaking decisions in any condition -> complete
 # separation. Excluded from estimation, reported descriptively.
