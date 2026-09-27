@@ -73,8 +73,9 @@ CARE-Drive/
 │   │   ├── Results_Parameter_Combinations.xlsx
 │   │   ├── ROLE + CoT + HR One Run.py         # CoT sensitivity check (Sec. 3.4.4)
 │   │   ├── Results_Parameter_Combinations_CoT.xlsx
-│   │   ├── overtaking_rate_calculation.ipynb      # Draws Fig. 5 (ToT)
-│   │   └── overtaking_rate_calculation_CoT.ipynb  # CoT counterpart
+│   │   ├── care_drive_stage2_figures.py       # Draws Fig. 5 (ToT + CoT), with Wilson 95% CI error bars
+│   │   ├── overtaking_rate_calculation.ipynb      # Earlier version of Fig. 5, no CIs -- superseded
+│   │   └── overtaking_rate_calculation_CoT.ipynb  # CoT counterpart of the above, same caveat
 │   │
 │   ├── figure_06/                             # Prompt-component ablation, cross-model
 │   │   ├── GPT4_ToT_Component_Ablation.py     # GPT-4.1, conditions A-E (1,200 obs)
@@ -96,23 +97,23 @@ CARE-Drive/
 │
 ├── tables/
 │   │
+│   ├── table_04/                          # Stage 1 Step 1 screening (paper's Table 4) -- not
+│   │   │                                   # touched/verified in the reproducibility pass above
+│   │   ├── BB + Role + HR.py
+│   │   ├── BB + Role + CoT + HR.py
+│   │   └── BB + Role + ToT + HR.py
+│   │
+│   ├── table_05/                          # Stage 1 Step 2 sensitivity (paper's Table 5) -- same caveat
+│   │   ├── ROLE + HR.py
+│   │   ├── ROLE + CoT + HR.py
+│   │   └── ROLE + ToT + HR.py
+│   │
 │   └── table06-08_stage2_stats/           # Section 4.2 statistics (Tables 6-8)
 │       ├── care_drive_stage2_analysis.py  # Reads figures/figure_05/*.xlsx directly, no data copy
 │       └── logit.ipynb                    # Early prototype, superseded -- see Statistical analysis
 │
 ├── Supplementary_R3.2/
 │   └── openai_api_key.txt                 # Shared, gitignored OpenAI key used by every GPT-4.1 script
-│
-├── Table 3/                               # Stage 1 Step 1 screening (paper's Table 4) -- legacy,
-│   │                                       # not touched/verified in the reproducibility pass above
-│   ├── BB + Role + HR.py
-│   ├── BB + Role + CoT + HR.py
-│   └── BB + Role + ToT + HR.py
-│
-├── Table 4, 5, 6/                         # Stage 1 Step 2 sensitivity (paper's Table 5) -- same caveat
-│   ├── ROLE + HR.py
-│   ├── ROLE + CoT + HR.py
-│   └── ROLE + ToT + HR.py
 │
 └── final_results_table_3_4_5_6.xlsx       # Manually aggregated summary, not produced by a script
 ```
@@ -152,16 +153,19 @@ All scripts are designed to be run from the **project root directory** so that r
 resolve correctly, even though the scripts themselves live inside `figures/<name>/` or
 `tables/<name>/`. Each figure script writes its output Excel file next to itself, in the same folder.
 
-**Stage 1 — Prompt Calibration (Tables 3, 4, 5, 6, legacy, unverified this pass):**
+**Stage 1 — Prompt Calibration (Tables 4-5, legacy, unverified this pass):**
 ```bash
-python "Table 3/BB + Role + CoT + HR.py"
-python "Table 3/BB + Role + ToT + HR.py"
+python "tables/table_04/BB + Role + CoT + HR.py"
+python "tables/table_04/BB + Role + ToT + HR.py"
+python "tables/table_05/ROLE + CoT + HR.py"
+python "tables/table_05/ROLE + ToT + HR.py"
 ```
 
 **Figure 5 (Stage 2 contextual evaluation):**
 ```bash
 python "figures/figure_05/ROLE + ToT + HR One Run.py"   # primary (3,600 obs)
 python "figures/figure_05/ROLE + CoT + HR One Run.py"   # sensitivity check (3,600 obs)
+python "figures/figure_05/care_drive_stage2_figures.py" # draws Fig. 5 with Wilson 95% CIs
 ```
 
 **Figure 6 (prompt-component ablation, cross-model):**
