@@ -115,7 +115,7 @@ prompt_conditions = {
 }
 
 # Optional local override: restrict to a single condition, e.g.
-#   ONLY_CONDITION=A_baseline python "extras/qwen_speed_offset/Qwen_ToT_SpeedCompliance_Ablation.py"
+#   ONLY_CONDITION=A_baseline python "tables/table_A12/Qwen_ToT_SpeedCompliance_Ablation.py"
 ONLY_CONDITION = os.environ.get("ONLY_CONDITION")
 if ONLY_CONDITION:
     if ONLY_CONDITION not in prompt_conditions:

@@ -104,17 +104,17 @@ CARE-Drive/
 │   │   ├── care_drive_stage2_analysis.py  # Reads figures/figure_05/*.xlsx directly, no data copy
 │   │   └── logit.ipynb                    # Early prototype, superseded -- see Statistical analysis
 │   │
-│   └── table_09/                          # Cross-model ablation comparison (Sec. 4.2.5) -- the Qwen
-│       │                                   # half; the GPT-4.1 half lives in figures/figure_06/
-│       ├── Qwen_ToT_Component_Ablation.py
-│       ├── Results_Parameter_Combinations_Qwen.xlsx
-│       ├── qwen_tot_ablation.sbatch         # DAIC cluster job for the script above
-│       ├── overtaking_rate_figure_qwen.ipynb    # Qwen-only two-panel view (not itself in the paper)
-│       └── overtaking_two_panel_qwen.png/.pdf/.svg
-│
-├── extras/                                 # Work beyond the paper's actual figures/tables
-│   └── qwen_speed_offset/                  # Qwen counterpart to the speed-offset eval -- no such
-│       │                                   # comparison exists in the paper's Appendix A
+│   ├── table_09/                          # Cross-model ablation comparison (Sec. 4.2.5) -- the Qwen
+│   │   │                                   # half; the GPT-4.1 half lives in figures/figure_06/
+│   │   ├── Qwen_ToT_Component_Ablation.py
+│   │   ├── Results_Parameter_Combinations_Qwen.xlsx
+│   │   ├── qwen_tot_ablation.sbatch         # DAIC cluster job for the script above
+│   │   ├── overtaking_rate_figure_qwen.ipynb    # Qwen-only two-panel view (not itself in the paper)
+│   │   └── overtaking_two_panel_qwen.png/.pdf/.svg
+│   │
+│   └── table_A12/                         # Qwen counterpart to the speed-offset eval -- note that,
+│       │                                   # unlike Table 9, the paper's actual Table A.12 has no
+│       │                                   # Qwen column; this whole folder is exploratory
 │       ├── Qwen_ToT_SpeedCompliance_Ablation.py
 │       ├── Qwen_ToT_Baseline_vs_CAREDrive.xlsx
 │       └── QWEN_speed_offset_figure.ipynb
@@ -130,7 +130,7 @@ numbers are a direct, un-transformed read of the underlying `.xlsx` files. For T
 `figures/figure_06/Results_Parameter_Combinations.xlsx` (GPT-4.1) and
 `tables/table_09/Results_Parameter_Combinations_Qwen.xlsx` (Qwen) side by side; for Table A.12,
 `figures/figure_A8/GPT4_ToT_Baseline_vs_CAREDrive.xlsx` alone (Table A.12 has no Qwen column in the
-paper -- see the note on `extras/` below). Each relevant notebook computes the same grouped summary
+paper -- see `tables/table_A12/` above). Each relevant notebook computes the same grouped summary
 internally, right before plotting it.
 
 ---
@@ -193,11 +193,11 @@ python "tables/table_09/Qwen_ToT_Component_Ablation.py"   # run locally
 python "figures/figure_A8/GPT4_ToT_SpeedCompliance_Ablation.py"
 ```
 
-**Extras -- Qwen speed-offset (not in the paper):** the Appendix A speed-offset evaluation has no
-Qwen counterpart in the paper (unlike Table 9, which does); this is exploratory work done alongside
-it, kept in its own `extras/` tree so it isn't mistaken for part of Table A.12.
+**Table A.12 folder, Qwen counterpart (not in the paper):** the Appendix A speed-offset evaluation
+has no Qwen column in the paper (unlike Table 9, which does) -- this is exploratory work done
+alongside it.
 ```bash
-python "extras/qwen_speed_offset/Qwen_ToT_SpeedCompliance_Ablation.py"   # run locally
+python "tables/table_A12/Qwen_ToT_SpeedCompliance_Ablation.py"   # run locally
 ```
 
 **Tables 6-8 (Section 4.2 statistical analysis):**
