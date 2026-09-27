@@ -19,7 +19,7 @@ hostname = socket.gethostname()
 # --- API key: env var takes priority; otherwise read from a local, gitignored
 # file so you can just paste your key in and never risk committing it. ---
 API_KEY_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "..", "Supplementary_R3.2", "openai_api_key.txt"
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "secrets", "openai_api_key.txt"
 )
 api_key = os.environ.get("OPENAI_API_KEY")
 if not api_key and os.path.exists(API_KEY_FILE):

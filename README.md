@@ -119,10 +119,13 @@ CARE-Drive/
 │       ├── Qwen_ToT_Baseline_vs_CAREDrive.xlsx
 │       └── QWEN_speed_offset_figure.ipynb
 │
-├── Supplementary_R3.2/
+├── secrets/
 │   └── openai_api_key.txt                 # Shared, gitignored OpenAI key used by every GPT-4.1 script
 │
-└── final_results_table_3_4_5_6.xlsx       # Manually aggregated summary, not produced by a script
+└── final_results_table_3_4_5_6.xlsx       # Manually compiled source data behind the paper's published
+                                            # Table 4 and Table 5 -- not produced by a script, and the
+                                            # only existing record to verify tables/table_04/table_05
+                                            # against, since those two haven't been re-verified yet
 ```
 
 Neither Table 9 nor Table A.12 has a script that assembles the actual table layout -- the paper's
@@ -147,13 +150,17 @@ pip install statsmodels scipy   # for the Section 4.2 statistical analysis
 
 ### API Key
 
-This project uses the OpenAI API. **Never hardcode your API key** in source files. Set it as an environment variable:
+This project uses the OpenAI API. **Never hardcode your API key** in source files. Every GPT-4.1
+script checks the `OPENAI_API_KEY` environment variable first, then falls back to a local,
+gitignored key file -- pick whichever is more convenient:
 
 ```bash
 export OPENAI_API_KEY="your-api-key-here"
 ```
 
-To make this permanent, add the line above to your `~/.zshrc` or `~/.bashrc`.
+To make this permanent, add the line above to your `~/.zshrc` or `~/.bashrc`. Or, simpler for local
+use: create `secrets/openai_api_key.txt` containing just your key on one line -- that file is
+`.gitignore`d, doesn't ship with a fresh clone, and can never be committed by accident.
 
 ---
 
