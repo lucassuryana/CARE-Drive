@@ -75,7 +75,8 @@ CARE-Drive/
 │   ├── Results_Parameter_Combinations_CoT.xlsx
 │   ├── overtaking_rate_calculation.ipynb  # ToT overtaking-rate computation and visualization
 │   ├── overtaking_rate_calculation_CoT.ipynb  # CoT counterpart of the above
-│   └── logit.ipynb                        # Early prototype only -- see note under Statistical analysis
+│   ├── logit.ipynb                        # Early prototype, superseded -- see Statistical analysis
+│   └── care_drive_stage2_analysis.py      # Section 4.2 statistical analysis (Tables 6-8)
 │
 ├── Supplementary_R3.2/                    # Prompt-component ablation (Table 3, Fig. 6, Table 9)
 │   ├── GPT4_ToT_Component_Ablation.py     # GPT-4.1, conditions A-E (1,200 obs)
@@ -102,7 +103,9 @@ CARE-Drive/
 ### Requirements
 
 ```bash
-pip install openai openpyxl
+pip install openai openpyxl pandas numpy matplotlib
+pip install torch transformers  # for the local Qwen3-VL-8B scripts
+pip install statsmodels scipy   # for the Section 4.2 statistical analysis
 ```
 
 ### API Key
@@ -144,13 +147,26 @@ python Supplementary_R3.2/Qwen_ToT_Component_Ablation.py     # cross-model check
 python Supplementary_R3.2/GPT4_ToT_SpeedCompliance_Ablation.py
 ```
 
-**Statistical analysis:**
+**Statistical analysis (Section 4.2, Tables 6-8):**
 
-`Table 7/logit.ipynb` is an early prototype (individual-level/mixed-effects logistic regression on raw
-decisions) and does **not** implement the grouped-binomial regression, AIC/deviance model comparison
-(Table 6), bootstrap odds-ratio confidence intervals (Tables 7-8), or Wilson confidence intervals (Fig. 5)
-reported in the paper. That analysis code is not currently in this repository and would need to be written
-separately to fully reproduce Section 4.2's statistical results.
+```bash
+cd "Table 7"
+python care_drive_stage2_analysis.py
+```
+
+Reads `Results_Parameter_Combinations.xlsx` (ToT) and `Results_Parameter_Combinations_CoT.xlsx` (CoT)
+from the current directory. Reproduces, per reasoning strategy: Wilson 95% CIs per condition,
+complete-separation screening (TTC = 1.7 s), the AIC/deviance specification screen (Table 6), the final
+grouped-binomial model with clustered SEs and a dispersion parameter, a 2,000-replicate condition-level
+bootstrap for odds-ratio CIs (Tables 7-8), predicted probabilities at named contextual profiles, and the
+pooled Strategy × Context comparison (Sec. 4.2.3, Sec. 5.1). Verified to reproduce the paper's reported
+AIC values, odds ratios, bootstrap CIs, and Strategy × {Rear-vehicle, Urgency} interaction coefficients
+exactly. Requires `statsmodels` and `scipy` in addition to the base requirements below. Writes CSV
+outputs to `Table 7/stage2_analysis_output/` (regenerable, not tracked in the repo).
+
+`Table 7/logit.ipynb` is an earlier, abandoned prototype (individual-level/mixed-effects logistic
+regression on raw decisions) that does not implement this methodology -- kept for history, not needed
+for reproduction.
 
 Each script runs 30 independent stochastic trials per experimental condition (10 for the Qwen cross-model
 check, 20 for the speed-offset evaluation) and saves results incrementally to an Excel file.
