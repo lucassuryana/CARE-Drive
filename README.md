@@ -1,9 +1,9 @@
 # CARE-Drive
 
-> **CARE-Drive: A Framework for Evaluating Reason-Responsiveness of 
+> **CARE-Drive: A Method for Evaluating Reason-Responsiveness of 
 > Vision–Language Models in Automated Driving**  
 > Lucas Elbert Suryana, Farah Bierenga, Sanne van Buuren, Pepijn Kooij, 
-> Elsefien Tulleners, Federico Scari, Simeon Calvert, Bart van Arem, Arkady Zgonnikov  
+> Elsefien Tulleners, Federico Scari, Simeon Craig Calvert, Bart van Arem, Arkady Zgonnikov  
 > *Under review — Transportation Research Part C: Emerging Technologies*  
 > Preprint available on arXiv: [2602.15645](https://arxiv.org/pdf/2602.15645)  
 > Delft University of Technology
@@ -11,11 +11,11 @@
 
 ## Overview
 
-CARE-Drive is a model-agnostic framework for evaluating **reason-responsiveness** in vision–language models (VLMs) applied to automated driving. It addresses a key limitation of existing evaluation methods: while most frameworks assess outcome-based metrics (e.g., collision rates, trajectory accuracy), they do not determine whether model decisions appropriately reflect human-relevant normative considerations — or whether explanations are merely post-hoc rationalizations.
+CARE-Drive is a model-agnostic method for evaluating **reason-responsiveness** in vision–language models (VLMs) applied to automated driving. It addresses a key limitation of existing evaluation methods: while most methods assess outcome-based metrics (e.g., collision rates, trajectory accuracy), they do not determine whether model decisions appropriately reflect human-relevant normative considerations — or whether explanations are merely post-hoc rationalizations.
 
 CARE-Drive operationalizes the **tracking condition** of Meaningful Human Control (MHC), which requires that automated systems respond appropriately to the human-relevant reasons that justify their decisions.
 
-The framework is applied to a cyclist overtaking scenario in which an automated vehicle (AV) must decide whether to overtake a cyclist on a road where crossing double solid centerlines is legally prohibited, creating a normative trade-off between safety, legality, efficiency, and comfort.
+The method is applied to a cyclist overtaking scenario in which an automated vehicle (AV) must decide whether to overtake a cyclist on a road where crossing double solid centerlines is legally prohibited, creating a normative trade-off between safety, legality, efficiency, and comfort. Beyond the core two-stage pipeline below, the study also runs a prompt-component ablation (isolating which parts of the CARE-Drive prompt drive the effect), a cross-model check against Qwen3-VL-8B-Instruct, and a held-out speed-offset evaluation to test whether reason-responsiveness generalizes beyond the binary overtake/stay-behind decision.
 
 ---
 
@@ -30,6 +30,12 @@ Identifies the model $M$ and thought strategy $T$ that produce stable, interpret
 Uses the calibrated configuration $(M^*, T^*)$ to systematically vary observable driving context variables — time-to-collision with oncoming vehicles, presence of a following vehicle, passenger urgency, and following duration behind the cyclist — and measures how sensitively human-augmented VLM decisions respond to these contextual changes.
 
 **Calibration result:** The optimal configuration identified is `gpt-4.1` with Tree-of-Thought (ToT) prompting.
+
+### Further analyses on top of Stage 2
+
+- **Prompt-component ablation** (Fig. 6, Table 9) — removes/combines the baseline, safety, human-reasons, and principles components of the prompt to check whether the context-sensitivity found in Stage 2 requires the full CARE-Drive prompt or is driven by a subset of it.
+- **Cross-model check** (Table 9) — repeats the ablation with Qwen3-VL-8B-Instruct to see whether the effect is specific to `gpt-4.1`.
+- **Held-out speed-offset evaluation** (Fig. A.8, Table A.12, Appendix A) — tests reason-responsiveness on a continuous speed-adjustment decision the model was not calibrated on, rather than the binary overtake/stay-behind decision.
 
 ---
 
@@ -100,7 +106,7 @@ CARE-Drive/
 │   │   ├── ROLE + CoT + HR.py
 │   │   └── ROLE + ToT + HR.py
 │   │
-│   ├── table06-08_stage2_stats/           # Section 4.2 statistics (Tables 6-8)
+│   ├── table_06-08/           # Section 4.2 statistics (Tables 6-8)
 │   │   ├── care_drive_stage2_analysis.py  # Reads figures/figure_05/*.xlsx directly, no data copy
 │   │   └── logit.ipynb                    # Early prototype, superseded -- see Statistical analysis
 │   │
@@ -210,7 +216,7 @@ python "tables/table_A12/Qwen_ToT_SpeedCompliance_Ablation.py"   # run locally
 **Tables 6-8 (Section 4.2 statistical analysis):**
 
 ```bash
-python "tables/table06-08_stage2_stats/care_drive_stage2_analysis.py"
+python "tables/table_06-08/care_drive_stage2_analysis.py"
 ```
 
 Reads `Results_Parameter_Combinations_ToT.xlsx` (ToT) and `Results_Parameter_Combinations_CoT.xlsx` (CoT)
@@ -222,10 +228,10 @@ clustered SEs and a dispersion parameter, a 2,000-replicate condition-level boot
 comparison (Sec. 4.2.3, Sec. 5.1). Verified to reproduce the paper's reported AIC values, odds ratios,
 bootstrap CIs, and Strategy × {Rear-vehicle, Urgency} interaction coefficients exactly, run either from
 the repo root or from inside its own folder. Requires `statsmodels` and `scipy` in addition to the base
-requirements below. Writes CSV outputs to `tables/table06-08_stage2_stats/stage2_analysis_output/`
+requirements below. Writes CSV outputs to `tables/table_06-08/stage2_analysis_output/`
 (regenerable, not tracked in the repo).
 
-`tables/table06-08_stage2_stats/logit.ipynb` is an earlier, abandoned prototype (individual-level/
+`tables/table_06-08/logit.ipynb` is an earlier, abandoned prototype (individual-level/
 mixed-effects logistic regression on raw decisions) that does not implement this methodology -- kept
 for history, not needed for reproduction, and its internal data path was not updated to match (it
 never worked for this purpose to begin with).
@@ -255,18 +261,19 @@ check, 20 for the speed-offset evaluation) and saves results incrementally to an
 
 ## Key Results
 
-- Without explicit human reasons, the VLM **always stays behind** the cyclist (0% overtaking across all models and strategies), defaulting to strict legal compliance.
-- Injecting human reasons shifts model behavior significantly: `gpt-4.1 + ToT` achieves **100% alignment** with expert recommendations in the baseline calibration scenario.
-- Time-to-collision ($TTC_o$) is the strongest predictor of overtaking (odds ratio: 20.4), followed by rear-vehicle presence (odds ratio: 3.8).
-- Constrained explanation length strongly suppresses overtaking, reducing probability from ~74% to near 0%.
-- Passenger urgency unexpectedly *reduces* overtaking probability, contrary to human driver findings.
-- Following time does not significantly influence overtaking decisions after controlling for other variables.
+- `gpt-4.1 + ToT` shows selective, context-sensitive reason-responsiveness in Stage 2: overtaking probability moves with $TTC_o$ and rear-vehicle presence in the directions expert reasoning would predict.
+- Time-to-collision ($TTC_o$) is the strongest predictor of overtaking, with odds ratios of roughly 2.7–4.0 for $TTC_o \geq 6.8$ s vs. the 3.4 s reference; rear-vehicle presence has an odds ratio of 3.95. Passenger urgency *reduces* overtaking probability (odds ratio 0.42), contrary to the direction human-driver findings would suggest.
+- The prompt-component ablation (Fig. 6, Table 9) shows this responsiveness depends on the complete CARE-Drive prompt — no single component (e.g., the human-reasons list alone) reproduces it.
+- The cross-model check (Table 9) shows Qwen3-VL-8B-Instruct does not replicate this behavior: it stays behind the cyclist across all ablation conditions, unlike `gpt-4.1`.
+- The held-out speed-offset evaluation (Fig. A.8, Table A.12) shows the complete CARE-Drive prompt produces positive speed deviations from the posted limit where the baseline prompt does not, suggesting the effect generalizes beyond the binary overtake decision.
+- Constrained explanation length ("few-sentences") suppresses overtaking relative to "no-limit" explanations across the factorial design.
+- Exact figures (odds ratios, bootstrap CIs, AIC/deviance values) are reproduced by `tables/table_06-08/care_drive_stage2_analysis.py` — see Tables 6-8 in the paper.
 
 ---
 
 ## CARLA Simulation
 
-Selected conditions were validated in the CARLA simulator to confirm that calibrated decisions translate into physically executable AV behavior. A video demonstration is available at: https://elsefientulleners.wixsite.com/bep9
+Selected conditions were validated in the CARLA simulator to confirm that calibrated decisions translate into physically executable AV behavior. A video demonstration is available at: https://doi.org/10.4121/ed2fd9ef-3814-4beb-a888-75f267974297
 
 ---
 
@@ -276,11 +283,11 @@ If you use this code or framework in your research, please cite:
 
 ```bibtex
 @article{suryana2026caredrive,
-  title={CARE-Drive: A Framework for Evaluating Reason-Responsiveness 
+  title={CARE-Drive: A Method for Evaluating Reason-Responsiveness 
          of Vision–Language Models in Automated Driving},
   author={Suryana, Lucas Elbert and Bierenga, Farah and van Buuren, Sanne 
           and Kooij, Pepijn and Tulleners, Elsefien and Scari, Federico 
-          and Calvert, Simeon and van Arem, Bart and Zgonnikov, Arkady},
+          and Calvert, Simeon Craig and van Arem, Bart and Zgonnikov, Arkady},
   journal={arXiv preprint arXiv:2602.15645},
   year={2025},
   note={Under review at Transportation Research Part C: Emerging Technologies}
