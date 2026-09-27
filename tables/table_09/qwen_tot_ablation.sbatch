@@ -11,7 +11,7 @@
 # Usage:
 #   git clone https://github.com/lucassuryana/CARE-Drive.git ~/CARE-Drive
 #   cd ~/CARE-Drive && git checkout address-reviewer-comment && git pull
-#   sbatch "figures/figure_06/qwen_tot_ablation.sbatch"
+#   sbatch "tables/table_09/qwen_tot_ablation.sbatch"
 #
 # Estimated runtime: ~6.4 hours serial (400 runs -- following time fixed at
 # 24s, single (full-reasoning) text version, 2-level factorial over
@@ -37,4 +37,4 @@ source ~/.bashrc
 conda activate rq2
 
 cd ~/CARE-Drive
-python "figures/figure_06/Qwen_ToT_Component_Ablation.py"
+python "tables/table_09/Qwen_ToT_Component_Ablation.py"

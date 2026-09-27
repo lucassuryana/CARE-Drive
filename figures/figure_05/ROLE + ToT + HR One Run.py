@@ -77,7 +77,7 @@ results = {
 # holds a differently-shaped 1200-row file under the same filename.
 parent_directory = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(parent_directory, exist_ok=True)
-file_path = os.path.join(parent_directory, "Results_Parameter_Combinations.xlsx")
+file_path = os.path.join(parent_directory, "Results_Parameter_Combinations_ToT.xlsx")
 
 # Check if Excel file exists, if not create it
 if not os.path.exists(file_path):

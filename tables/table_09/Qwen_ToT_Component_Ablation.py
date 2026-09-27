@@ -91,7 +91,7 @@ prompt_conditions = {
 }
 
 # Optional local override: restrict to a single condition, e.g.
-#   ONLY_CONDITION=A_000_baseline python "figures/figure_06/Qwen_ToT_Component_Ablation.py"
+#   ONLY_CONDITION=A_000_baseline python "tables/table_09/Qwen_ToT_Component_Ablation.py"
 # Leaving this unset (as on DAIC) runs all conditions as before.
 ONLY_CONDITION = os.environ.get("ONLY_CONDITION")
 if ONLY_CONDITION:

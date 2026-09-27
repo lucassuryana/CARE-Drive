@@ -36,7 +36,7 @@ from scipy import stats
 # Configuration
 # ----------------------------------------------------------------------------
 FILES = {
-    "ToT": "Results_Parameter_Combinations.xlsx",
+    "ToT": "Results_Parameter_Combinations_ToT.xlsx",
     "CoT": "Results_Parameter_Combinations_CoT.xlsx",
 }
 # Reads the ToT/CoT Stage-2 workbooks straight from figures/figure_05/, so the

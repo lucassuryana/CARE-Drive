@@ -50,7 +50,7 @@ def prep(fname):
     return df
 
 
-tot = prep("Results_Parameter_Combinations.xlsx")
+tot = prep("Results_Parameter_Combinations_ToT.xlsx")
 cot = prep("Results_Parameter_Combinations_CoT.xlsx")
 
 # series styling follows the existing Figure 5 legend

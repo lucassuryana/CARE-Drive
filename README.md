@@ -70,21 +70,16 @@ CARE-Drive/
 │   │
 │   ├── figure_05/                             # Stage 2 full-factorial evaluation
 │   │   ├── ROLE + ToT + HR One Run.py         # Primary ToT run (3,600 obs)
-│   │   ├── Results_Parameter_Combinations.xlsx
+│   │   ├── Results_Parameter_Combinations_ToT.xlsx
 │   │   ├── ROLE + CoT + HR One Run.py         # CoT sensitivity check (Sec. 3.4.4)
 │   │   ├── Results_Parameter_Combinations_CoT.xlsx
 │   │   ├── care_drive_stage2_figures.py       # Draws Fig. 5 (ToT + CoT), with Wilson 95% CI error bars
 │   │   └── stage2_condition_proportions_wilson.csv  # Per-condition rate + Wilson interval behind Fig. 5
 │   │
-│   ├── figure_06/                             # Prompt-component ablation, cross-model
+│   ├── figure_06/                             # Prompt-component ablation (GPT-4.1 only, per its caption)
 │   │   ├── GPT4_ToT_Component_Ablation.py     # GPT-4.1, conditions A-E (1,200 obs)
 │   │   ├── Results_Parameter_Combinations.xlsx
-│   │   ├── Qwen_ToT_Component_Ablation.py     # Qwen3-VL-8B-Instruct cross-model check (400 obs)
-│   │   ├── Results_Parameter_Combinations_Qwen.xlsx
-│   │   ├── qwen_tot_ablation.sbatch            # DAIC cluster job for the Qwen script above
-│   │   ├── overtaking_rate_figure_rev.ipynb    # Draws Fig. 6 (GPT-4.1, two-panel)
-│   │   ├── overtaking_rate_figure_qwen.ipynb   # Qwen counterpart panel (not in the paper)
-│   │   └── overtaking_rate_figure.ipynb        # Earlier alternative layout, superseded by *_rev
+│   │   └── overtaking_rate_figure_rev.ipynb   # Draws Fig. 6 (two-panel)
 │   │
 │   └── figure_A8/                         # Held-out speed-offset evaluation (Sec. 3.4.7, App. A)
 │       ├── GPT4_ToT_SpeedCompliance_Ablation.py
@@ -107,9 +102,17 @@ CARE-Drive/
 │   │   ├── ROLE + CoT + HR.py
 │   │   └── ROLE + ToT + HR.py
 │   │
-│   └── table06-08_stage2_stats/           # Section 4.2 statistics (Tables 6-8)
-│       ├── care_drive_stage2_analysis.py  # Reads figures/figure_05/*.xlsx directly, no data copy
-│       └── logit.ipynb                    # Early prototype, superseded -- see Statistical analysis
+│   ├── table06-08_stage2_stats/           # Section 4.2 statistics (Tables 6-8)
+│   │   ├── care_drive_stage2_analysis.py  # Reads figures/figure_05/*.xlsx directly, no data copy
+│   │   └── logit.ipynb                    # Early prototype, superseded -- see Statistical analysis
+│   │
+│   └── table_09/                          # Cross-model ablation comparison (Sec. 4.2.5) -- the Qwen
+│       │                                   # half; the GPT-4.1 half lives in figures/figure_06/
+│       ├── Qwen_ToT_Component_Ablation.py
+│       ├── Results_Parameter_Combinations_Qwen.xlsx
+│       ├── qwen_tot_ablation.sbatch         # DAIC cluster job for the script above
+│       ├── overtaking_rate_figure_qwen.ipynb    # Qwen-only two-panel view (not itself in the paper)
+│       └── overtaking_two_panel_qwen.png/.pdf/.svg
 │
 ├── Supplementary_R3.2/
 │   └── openai_api_key.txt                 # Shared, gitignored OpenAI key used by every GPT-4.1 script
@@ -117,10 +120,12 @@ CARE-Drive/
 └── final_results_table_3_4_5_6.xlsx       # Manually aggregated summary, not produced by a script
 ```
 
-Tables 9 and A.12 don't have a dedicated table-generating script -- the paper's numbers there are a
-direct, un-transformed read of `figures/figure_06/Results_Parameter_Combinations*.xlsx` and
-`figures/figure_A8/*_Baseline_vs_CAREDrive.xlsx` respectively (each figure's own notebook computes
-the same grouped summary internally before plotting it).
+Neither Table 9 nor Table A.12 has a script that assembles the actual table layout -- the paper's
+numbers are a direct, un-transformed read of the underlying `.xlsx` files. For Table 9 that means
+`figures/figure_06/Results_Parameter_Combinations.xlsx` (GPT-4.1) and
+`tables/table_09/Results_Parameter_Combinations_Qwen.xlsx` (Qwen) side by side; for Table A.12,
+`figures/figure_A8/*_Baseline_vs_CAREDrive.xlsx`. Each relevant notebook computes the same grouped
+summary internally, right before plotting it.
 
 ---
 
@@ -167,10 +172,14 @@ python "figures/figure_05/ROLE + CoT + HR One Run.py"   # sensitivity check (3,6
 python "figures/figure_05/care_drive_stage2_figures.py" # draws Fig. 5 with Wilson 95% CIs
 ```
 
-**Figure 6 (prompt-component ablation, cross-model):**
+**Figure 6 (prompt-component ablation, GPT-4.1):**
 ```bash
 python "figures/figure_06/GPT4_ToT_Component_Ablation.py"
-python "figures/figure_06/Qwen_ToT_Component_Ablation.py"   # run locally
+```
+
+**Table 9 (cross-model comparison, Sec. 4.2.5) -- Qwen half:**
+```bash
+python "tables/table_09/Qwen_ToT_Component_Ablation.py"   # run locally
 ```
 
 **Figure A.8 (held-out speed-offset evaluation, Sec. 3.4.7, Appendix A):**
@@ -184,7 +193,7 @@ python "figures/figure_A8/GPT4_ToT_SpeedCompliance_Ablation.py"
 python "tables/table06-08_stage2_stats/care_drive_stage2_analysis.py"
 ```
 
-Reads `Results_Parameter_Combinations.xlsx` (ToT) and `Results_Parameter_Combinations_CoT.xlsx` (CoT)
+Reads `Results_Parameter_Combinations_ToT.xlsx` (ToT) and `Results_Parameter_Combinations_CoT.xlsx` (CoT)
 directly from `figures/figure_05/` -- no separate copy of the data is kept next to the table code.
 Reproduces, per reasoning strategy: Wilson 95% CIs per condition, complete-separation screening
 (TTC = 1.7 s), the AIC/deviance specification screen (Table 6), the final grouped-binomial model with
@@ -201,9 +210,11 @@ mixed-effects logistic regression on raw decisions) that does not implement this
 for history, not needed for reproduction, and its internal data path was not updated to match (it
 never worked for this purpose to begin with).
 
-Tables 9 and A.12 have no separate script -- open the corresponding figure's notebook in
-`figures/figure_06/` or `figures/figure_A8/` and read the `panel_a`/`panel_b` (or equivalent grouped)
-dataframe it computes just before plotting.
+Tables 9 and A.12 have no dedicated table-assembling script. For Table 9, its GPT-4.1 half is
+computed inline in `figures/figure_06/overtaking_rate_figure_rev.ipynb` and its Qwen half inline in
+`tables/table_09/overtaking_rate_figure_qwen.ipynb` (each notebook's `panel_a`/`panel_b` dataframe,
+just before plotting) -- the two need to be placed side by side by hand to get Table 9's layout. For
+Table A.12, open `figures/figure_A8/`'s notebook and read the same kind of grouped dataframe there.
 
 Each script runs 30 independent stochastic trials per experimental condition (10 for the Qwen cross-model
 check, 20 for the speed-offset evaluation) and saves results incrementally to an Excel file.
