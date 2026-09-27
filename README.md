@@ -74,8 +74,7 @@ CARE-Drive/
 │   │   ├── ROLE + CoT + HR One Run.py         # CoT sensitivity check (Sec. 3.4.4)
 │   │   ├── Results_Parameter_Combinations_CoT.xlsx
 │   │   ├── care_drive_stage2_figures.py       # Draws Fig. 5 (ToT + CoT), with Wilson 95% CI error bars
-│   │   ├── overtaking_rate_calculation.ipynb      # Earlier version of Fig. 5, no CIs -- superseded
-│   │   └── overtaking_rate_calculation_CoT.ipynb  # CoT counterpart of the above, same caveat
+│   │   └── stage2_condition_proportions_wilson.csv  # Per-condition rate + Wilson interval behind Fig. 5
 │   │
 │   ├── figure_06/                             # Prompt-component ablation, cross-model
 │   │   ├── GPT4_ToT_Component_Ablation.py     # GPT-4.1, conditions A-E (1,200 obs)
