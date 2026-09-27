@@ -23,19 +23,19 @@ The method is applied to a cyclist overtaking scenario in which an automated veh
 
 CARE-Drive is structured as a **two-stage evaluation pipeline**:
 
-### Stage 1 — Prompt Calibration
-Identifies the model $M$ and thought strategy $T$ that produce stable, interpretable, and expert-aligned decisions under a fixed normatively challenging driving situation. This stage isolates prompt-level effects before any context-sensitivity analysis is performed.
+### Stage 1 — Exploratory Configuration Screening
+Compares candidate model $M$ and thought-strategy $T$ configurations under fixed screening conditions, based on output consistency, acknowledgement of the normative conflict, and agreement with an expert-reference decision. Step 1 screens $(M, T)$ under a fixed baseline scenario; Step 2 evaluates the retained configurations' sensitivity across three driving scenarios and both explanation-length regimes. This stage explains why a configuration is selected — it does not show that the configuration will also agree with experts in other driving situations.
 
-### Stage 2 — Contextual Reasons Evaluation
-Uses the calibrated configuration $(M^*, T^*)$ to systematically vary observable driving context variables — time-to-collision with oncoming vehicles, presence of a following vehicle, passenger urgency, and following duration behind the cyclist — and measures how sensitively human-augmented VLM decisions respond to these contextual changes.
+### Stage 2 — Contextual (Reasons) Evaluation
+Holds the retained configuration $(M^*, T^*)$ fixed and systematically varies observable driving context — time-to-collision with an oncoming vehicle, presence of a following vehicle, passenger urgency, and following time behind the cyclist — together with the explanation-length regime, to evaluate how sensitively reason-augmented VLM decisions respond to these contextual changes.
 
-**Calibration result:** The optimal configuration identified is `gpt-4.1` with Tree-of-Thought (ToT) prompting.
+**Retained configuration:** Stage 1 retains $(M^*, T^*) = ($`gpt-4.1`$,$ Tree-of-Thought$)$ for Stage 2.
 
 ### Further analyses on top of Stage 2
 
 - **Prompt-component ablation** (Fig. 6, Table 9) — removes/combines the baseline, safety, human-reasons, and principles components of the prompt to check whether the context-sensitivity found in Stage 2 requires the full CARE-Drive prompt or is driven by a subset of it.
 - **Cross-model check** (Table 9) — repeats the ablation with Qwen3-VL-8B-Instruct to see whether the effect is specific to `gpt-4.1`.
-- **Held-out speed-offset evaluation** (Fig. A.8, Table A.12, Appendix A) — tests reason-responsiveness on a continuous speed-adjustment decision the model was not calibrated on, rather than the binary overtake/stay-behind decision.
+- **Held-out speed-offset evaluation** (Fig. A.8, Table A.12, Appendix A) — holds the Stage 1 configuration fixed and tests reason-responsiveness on a continuous speed-adjustment decision it was not selected on, rather than the binary overtake/stay-behind decision.
 
 ---
 
@@ -176,7 +176,7 @@ All scripts are designed to be run from the **project root directory** so that r
 resolve correctly, even though the scripts themselves live inside `figures/<name>/` or
 `tables/<name>/`. Each figure script writes its output Excel file next to itself, in the same folder.
 
-**Stage 1 — Prompt Calibration (Tables 4-5, legacy, unverified this pass):**
+**Stage 1 — Exploratory Configuration Screening (Tables 4-5, legacy, unverified this pass):**
 ```bash
 python "tables/table_04/BB + Role + CoT + HR.py"
 python "tables/table_04/BB + Role + ToT + HR.py"
@@ -273,13 +273,13 @@ check, 20 for the speed-offset evaluation) and saves results incrementally to an
 
 ## CARLA Simulation
 
-Selected conditions were validated in the CARLA simulator to confirm that calibrated decisions translate into physically executable AV behavior. A video demonstration is available at: https://doi.org/10.4121/ed2fd9ef-3814-4beb-a888-75f267974297
+The retained CARE-Drive configuration `(gpt-4.1, Tree-of-Thought)` was integrated into the CARLA simulator as a proof-of-concept, to confirm that its decisions translate into physically executable AV behavior. A video demonstration is available at: https://doi.org/10.4121/ed2fd9ef-3814-4beb-a888-75f267974297
 
 ---
 
 ## Citation
 
-If you use this code or framework in your research, please cite:
+If you use this code or method in your research, please cite:
 
 ```bibtex
 @article{suryana2026caredrive,
@@ -289,7 +289,7 @@ If you use this code or framework in your research, please cite:
           and Kooij, Pepijn and Tulleners, Elsefien and Scari, Federico 
           and Calvert, Simeon Craig and van Arem, Bart and Zgonnikov, Arkady},
   journal={arXiv preprint arXiv:2602.15645},
-  year={2025},
+  year={2026},
   note={Under review at Transportation Research Part C: Emerging Technologies}
 }
 ```
