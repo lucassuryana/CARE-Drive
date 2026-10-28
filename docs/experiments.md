@@ -109,6 +109,7 @@ configurations and are not part of the manuscript.
 | Context | F = 24 s, No-Limit, TTC ∈ {1.7, 8.5} s, B × U |
 | Repetitions | 30 per cell (archived file pools a 10-run and a 20-run batch) |
 | Condition E in the paper | the 240 matching rows of the Stage 2 ToT dataset (Responses API, no token limit), not the E rows produced by this script |
+| A–D vs. paper's E | different API (Chat Completions vs. Responses), token limit (2048 vs. none) and prompt wording ("KEY PRINCIPLES" sentence after vs. before the reason list); the script's own E rows give 90/120 instead of 75/120. See report D1. |
 
 ### Cross-model ablation (Table 9, Qwen3-VL-8B-Instruct)
 
