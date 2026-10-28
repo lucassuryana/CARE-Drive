@@ -132,7 +132,13 @@ RESUME_FROM_RUN = 1  # Change this to the run number you want to continue from
 # Setup Excel file path -- named distinctly from the GPT-4.1 run of the same
 # scenario so the two models' results can't be confused, but written to the
 # same folder so they're easy to compare side by side.
-parent_directory = os.path.dirname(os.path.abspath(__file__))
+# Reruns are written to <this folder>/reruns/ (gitignored) unless
+# CARE_DRIVE_OUTPUT_DIR is set, so a new run can never append to or
+# overwrite the archived workbook that the reported results come from.
+parent_directory = os.environ.get(
+    "CARE_DRIVE_OUTPUT_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "reruns"),
+)
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "Qwen_ToT_Baseline_vs_CAREDrive.xlsx")
 

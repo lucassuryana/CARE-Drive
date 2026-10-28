@@ -1,0 +1,13 @@
+# Reproducing the reported results from the archived data (no API calls).
+# Pinned to the versions this workflow was verified with (Python 3.13.12,
+# Linux, 2026-10-28). Nearby versions should work; the Stage 2 bootstrap is
+# seeded (SEED = 20260903) and matched the paper to the printed precision.
+pandas==3.0.5
+numpy==1.26.4
+scipy==1.17.1
+statsmodels==0.15.0
+matplotlib==3.11.0
+openpyxl==3.1.5
+pytest==9.2.0
+# optional: execute the plotting notebooks (Fig. A.8, Qwen views)
+# nbconvert==7.17.0

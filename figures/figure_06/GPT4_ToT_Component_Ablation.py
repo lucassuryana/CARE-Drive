@@ -50,6 +50,10 @@ traffic_behind = ["None",
                   "One vehicle behind at 10 m distance"]
 passenger_hurry = ["",
                   "in hurry"]
+# The archived workbook pools two batches (10 + 20 runs per cell, hence the
+# repeated Run_Number values) for 30 per cell; use RUNS_PER_COMBINATION=30 to
+# match it in one go. The paper takes Condition E from the Stage 2 ToT data
+# (Sec. 3.4.5), not from the E rows this script generates.
 runs_per_combination = int(os.environ.get("RUNS_PER_COMBINATION", 10))
 
 # Optional local override: stop after N total runs regardless of RESUME_FROM_RUN,
@@ -102,7 +106,13 @@ print(f"Total runs to execute: {total_runs}")
 RESUME_FROM_RUN = 1  # Change this to the run number you want to continue from
 
 # Setup Excel file path (kept separate from the Qwen results file)
-parent_directory = os.path.dirname(os.path.abspath(__file__))
+# Reruns are written to <this folder>/reruns/ (gitignored) unless
+# CARE_DRIVE_OUTPUT_DIR is set, so a new run can never append to or
+# overwrite the archived workbook that the reported results come from.
+parent_directory = os.environ.get(
+    "CARE_DRIVE_OUTPUT_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "reruns"),
+)
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "Results_Parameter_Combinations.xlsx")
 

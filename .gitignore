@@ -3,4 +3,10 @@ openai_api_key.txt
 .env
 __pycache__/
 *.pyc
-tables/table06-08_stage2_stats/stage2_analysis_output/
+
+# Fresh experiment runs (see README, "Rerunning the experiments")
+reruns/
+# Output of python -m reproduce.reproduce_all
+reproduce/output/
+.pytest_cache/
+.DS_Store

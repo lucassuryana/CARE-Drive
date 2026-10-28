@@ -121,7 +121,13 @@ results = {
 }
 
 # Setup Excel file path
-parent_directory = os.path.dirname(os.path.abspath(__file__))
+# Reruns are written to <this folder>/reruns/ (gitignored) unless
+# CARE_DRIVE_OUTPUT_DIR is set, so a new run can never append to or
+# overwrite the archived workbook that the reported results come from.
+parent_directory = os.environ.get(
+    "CARE_DRIVE_OUTPUT_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "reruns"),
+)
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "Results_Parameter_Combinations.xlsx")
 

@@ -43,7 +43,10 @@ FILES = {
 # raw data has a single home instead of a copy living next to the table code.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 INDIR = os.path.join(_HERE, "..", "..", "figures", "figure_05")
-OUTDIR = os.path.join(_HERE, "stage2_analysis_output")
+# CARE_DRIVE_STAGE2_OUTDIR lets the validation tests write to a scratch folder
+# instead of overwriting the tracked CSVs.
+OUTDIR = os.environ.get("CARE_DRIVE_STAGE2_OUTDIR",
+                        os.path.join(_HERE, "stage2_analysis_output"))
 
 # TTC = 1.7 s produced no overtaking decisions in any condition -> complete
 # separation. Excluded from estimation, reported descriptively.
@@ -184,6 +187,10 @@ def specification_screen(d, strategy):
         record("categorical + " + label,
                smf.glm(FORMULA_ADDITIVE + " + " + term, data=d,
                        family=sm.families.Binomial()).fit())
+    # final specification plus B x U (the fourth row of manuscript Table 6)
+    record("categorical + TTC x F + B x U",
+           smf.glm(FORMULA_FINAL + " + " + INTERACTIONS["B x U"], data=d,
+                   family=sm.families.Binomial()).fit())
     return pd.DataFrame(rows)
 
 

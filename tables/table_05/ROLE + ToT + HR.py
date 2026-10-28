@@ -12,7 +12,15 @@ import time
 from openai import OpenAI
 from openpyxl import Workbook
 import re
-client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+# API key: OPENAI_API_KEY takes priority; otherwise read the gitignored
+# secrets/openai_api_key.txt used by the other GPT-4.1 scripts.
+API_KEY_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "secrets", "openai_api_key.txt"
+)
+api_key = os.environ.get("OPENAI_API_KEY")
+if not api_key and os.path.exists(API_KEY_FILE):
+    api_key = open(API_KEY_FILE).read().strip()
+client = OpenAI(api_key=api_key)
 # Parameters
 total_start_time = time.time()
 run_times = []
@@ -28,8 +36,9 @@ passenger_hurry_value = ""
 ttc_value = 8.5  # seconds, typical human overtaking TTC
 runs_per_combination = 30
 models =["gpt-4.1"]
-# scenarios = ["Scenario 1", "Scenario 2", "Scenario 3"]
-scenarios = ["Scenario 2"]
+# Table 5 evaluates all three scenarios; the archived copy of this script had
+# been left on ["Scenario 2"] only.
+scenarios = ["Scenario 1", "Scenario 2", "Scenario 3"]
 
 # Calculate total number of runs
 total_runs = len(scenarios) * len(text_versions) * runs_per_combination
@@ -38,6 +47,7 @@ print(f"Total runs to execute: {total_runs}")
 # Dictionary to store results
 results = {
     "Run_Number": [],
+    "Scenario": [],
     "Following_Time": [],
     "Text_Version": [],
     "Traffic_Behind": [],
@@ -48,7 +58,13 @@ results = {
 }
 
 # Setup Excel file path
-parent_directory = "Results_Table 4, 5, 6 New"       
+# Reruns are written to <this folder>/reruns/ (gitignored) unless
+# CARE_DRIVE_OUTPUT_DIR is set, so a new run can never append to or
+# overwrite the archived workbook that the reported results come from.
+parent_directory = os.environ.get(
+    "CARE_DRIVE_OUTPUT_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "reruns"),
+)
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "Results_Parameter_Combinations_ToT_HR.xlsx")
 
@@ -56,7 +72,7 @@ file_path = os.path.join(parent_directory, "Results_Parameter_Combinations_ToT_H
 wb = Workbook()
 wb.remove(wb.active)  # remove default starting sheet
 ws = wb.create_sheet(title="LLM Parameter Combinations")
-headers = ["Run_Number", "Following_Time", "Text_Version", "Traffic_Behind", "Passenger_Hurry", "Response", "Decision", "Elapsed_Time"]
+headers = ["Run_Number", "Scenario", "Following_Time", "Text_Version", "Traffic_Behind", "Passenger_Hurry", "Response", "Decision", "Elapsed_Time"]
 ws.append(headers)
 wb.save(file_path)
 print(f"Excel file created at: {file_path}")
@@ -298,6 +314,7 @@ for text_version in text_versions:
             
             # Store results
             results["Run_Number"].append(run_counter)
+            results["Scenario"].append(scenario_)
             results["Following_Time"].append(following_time)
             results["Text_Version"].append("Limited" if "FEW SENTENCES" in text_version else "Unlimited")
             results["Traffic_Behind"].append(traffic_behind_value)
@@ -309,6 +326,7 @@ for text_version in text_versions:
             # Add to batch data
             batch_data.append([
                 run_counter,
+                scenario_,
                 following_time,
                 "Limited" if "FEW SENTENCES" in text_version else "Unlimited",
                 traffic_behind_value,
@@ -356,4 +374,4 @@ print(f"Totale tijd: {total_duration:.2f} seconden")
 print(f"Gemiddelde tijd per prompt: {average_duration:.2f} seconden")
 print(f"Totaal aantal runs: {total_runs}")
 print(f"\nResultaten opgeslagen in: {file_path}")
-print(f"Totaal aantal combinaties getest: {len(following_time)} × {len(text_versions)} × {len(traffic_behind)} × {len(passenger_hurry_value)} × {runs_per_combination} = {total_runs}")
+print(f"Totaal aantal combinaties getest: {len(scenarios)} scenario(s) × {len(text_versions)} explanation lengths × {runs_per_combination} = {total_runs}")

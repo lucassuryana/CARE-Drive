@@ -12,7 +12,15 @@ import time
 from openai import OpenAI
 from openpyxl import Workbook
 import re
+# API key: OPENAI_API_KEY takes priority; otherwise read the gitignored
+# secrets/openai_api_key.txt used by the other GPT-4.1 scripts.
+API_KEY_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "secrets", "openai_api_key.txt"
+)
 api_key = os.environ.get("OPENAI_API_KEY")
+if not api_key and os.path.exists(API_KEY_FILE):
+    api_key = open(API_KEY_FILE).read().strip()
+client = OpenAI(api_key=api_key)
 
 # Parameters
 total_start_time = time.time()
@@ -46,7 +54,13 @@ results = {
 }
 
 # Setup Excel file path
-parent_directory = "Result Table 3 New"       
+# Reruns are written to <this folder>/reruns/ (gitignored) unless
+# CARE_DRIVE_OUTPUT_DIR is set, so a new run can never append to or
+# overwrite the archived workbook that the reported results come from.
+parent_directory = os.environ.get(
+    "CARE_DRIVE_OUTPUT_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "reruns"),
+)
 os.makedirs(parent_directory, exist_ok=True)
 file_path = os.path.join(parent_directory, "Results_Parameter_Combinations_Role_HR.xlsx")
 

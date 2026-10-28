@@ -1,0 +1,12 @@
+# Rerunning the VLM experiments (paid API calls / GPU). Not needed to
+# reproduce the reported numbers -- see requirements.txt for that.
+-r requirements.txt
+# GPT-4.1 scripts (Stage 1, Stage 2, ablation, speed offset). The client
+# version used for the original runs was not recorded; 3.5.0 is what the
+# scripts were last executed with.
+openai==3.5.0
+# Qwen3-VL-8B-Instruct scripts (tables/table_09, tables/table_A12).
+# Qwen3-VL support needs transformers >= 4.57; not re-executed in this audit.
+torch
+transformers>=4.57
+accelerate
